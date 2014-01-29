@@ -63,6 +63,13 @@ function setupStore( storeConfig ) {
 app.configure( function() {
   var optimize = config.NODE_ENV !== "development",
       tmpDir = path.normalize( require( "os" ).tmpDir() + "/mozilla.butter/" );
+  var csrfValue = function(req) {
+    var token = (req.body && req.body._csrf)
+      || (req.query && req.query._csrf)
+      || (req.headers['x-csrf-token'])
+      || (req.headers['x-xsrf-token']);
+    return token;
+  };
 
   app.set( "views", __dirname + "/views" );
 
@@ -111,7 +118,7 @@ app.configure( function() {
     .use( express.bodyParser() )
     .use( express.cookieParser() )
     .use( express.cookieSession( config.session ) )
-    .use( express.csrf() )
+    .use( express.csrf({value: csrfValue}) )
     /* Show Zeus who's boss
      * This only affects requests under /api and /persona, not static files
      * because the static file writes the response header before we hit this middleware
