@@ -5,8 +5,8 @@
 define([ "editor/editor", "editor/base-editor",
           "text!layouts/project-editor.html",
           "util/social-media", "ui/widget/textbox",
-          "ui/widget/tooltip" ],
-  function( Editor, BaseEditor, LAYOUT_SRC, SocialMedia, TextboxWrapper, ToolTip ) {
+          "ui/widget/tooltip", "editor/editorhelper" ],
+  function( Editor, BaseEditor, LAYOUT_SRC, SocialMedia, TextboxWrapper, ToolTip, EditorHelper ) {
 
   Editor.register( "project-editor", LAYOUT_SRC, function( rootElement, butter ) {
     var _rootElement = rootElement,
@@ -18,6 +18,8 @@ define([ "editor/editor", "editor/base-editor",
         _thumbnailInput = _rootElement.querySelector( ".butter-project-thumbnail" ),
         _projectEmbedURL = _rootElement.querySelector( ".butter-project-embed-url" ),
         _embedSize = _rootElement.querySelector( ".butter-embed-size" ),
+        _embedSizeHeight = _rootElement.querySelector( ".butter-embed-size-height" ),
+        _embedSizeWidth = _rootElement.querySelector( ".butter-embed-size-width" ),
         _previewBtn = _rootElement.querySelector( ".butter-preview-link" ),
         _viewSourceBtn = _rootElement.querySelector( ".butter-view-source-btn" ),
         _shareTwitter = _rootElement.querySelector( ".butter-share-twitter" ),
@@ -32,6 +34,7 @@ define([ "editor/editor", "editor/base-editor",
         _descriptionTimeout,
         _project,
         _projectTab,
+        _editorHelper = new EditorHelper( butter ),
         _idx;
 
     _authorInput.value = butter.project.author ? butter.project.author : "";
@@ -97,11 +100,47 @@ define([ "editor/editor", "editor/base-editor",
     }
 
     _embedSize.addEventListener( "change", function() {
+      if ( _embedSize.value === "custom" ) {
+        return;
+      }
       _embedDimensions = _embedSize.value.split( "x" );
       _embedWidth = _embedDimensions[ 0 ];
       _embedHeight = _embedDimensions[ 1 ];
+      _embedSizeHeight.value = _embedHeight;
+      _embedSizeWidth.value = _embedWidth;
       updateEmbed( butter.project.iframeUrl );
     }, false );
+
+    _embedSizeWidth.addEventListener( "change", function() {
+      _embedSize.value = "custom";
+      _embedWidth = _embedDimensions[ 0 ] = _embedSizeWidth.value;
+      updateEmbed( butter.project.iframeUrl );
+    }, false );
+
+    _embedSizeHeight.addEventListener( "change", function() {
+      _embedSize.value = "custom";
+      _embedHeight = _embedDimensions[ 1 ] = _embedSizeHeight.value;
+      updateEmbed( butter.project.iframeUrl );
+    }, false );
+
+    TextboxWrapper.applyTo( _projectURL, { readOnly: true } );
+    TextboxWrapper.applyTo( _projectEmbedURL, { readOnly: true } );
+
+    _editorHelper.droppable( null, _dropArea );
+
+    butter.listen( "droppable-unsupported", function unSupported() {
+      _this.setErrorState( Localized.get( "Sorry, but your browser doesn't support this feature." ) );
+    });
+
+    butter.listen( "droppable-upload-failed", function failedUpload( e ) {
+      _this.setErrorState( e.data );
+    });
+
+    butter.listen( "droppable-succeeded", function uploadSuceeded( e ) {
+      _project.thumbnail = _dropArea.querySelector( "img" ).src = e.data;
+      _projectDetails.addThumbnail( _project.thumbnail, _dropArea );
+      _projectDetails.selectThumb( _project.thumbnail );
+    });
 
     function applyInputListeners( element, key ) {
       var ignoreBlur = false,
@@ -140,15 +179,6 @@ define([ "editor/editor", "editor/base-editor",
     TextboxWrapper.applyTo( _authorInput );
     TextboxWrapper.applyTo( _descriptionInput );
     TextboxWrapper.applyTo( _thumbnailInput );
-
-    window.EditorHelper.droppable( null, _dropArea, function onDrop( uri ) {
-      _project.thumbnail = uri;
-      _project.save(function() {
-        butter.editor.openEditor( "project-editor" );
-        checkDescription();
-        _thumbnailInput.value = _project.thumbnail;
-      });
-    });
 
     butter.listen( "droppable-unsupported", function unSupported() {
       _this.setErrorState( "Sorry, but your browser doesn't support this feature." );

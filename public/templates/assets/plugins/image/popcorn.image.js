@@ -6,25 +6,31 @@
 
   var APIKEY = "&api_key=b939e5bd8aa696db965888a31b2f1964",
       flickrUrl = window.location.protocol === "https:" ? "https://secure.flickr.com/services/" : "http://api.flickr.com/services/",
-      searchPhotosCmd = flickrUrl + "rest/?method=flickr.photos.search&page=1&extras=url_m&media=photos&safe_search=1",
+      searchPhotosCmd = flickrUrl + "rest/?method=flickr.photos.search&extras=url_m&media=photos&safe_search=1",
       getPhotosetCmd = flickrUrl + "rest/?method=flickr.photosets.getPhotos&extras=url_m&media=photos",
       getPhotoSizesCmd = flickrUrl + "rest/?method=flickr.photos.getSizes",
       jsonBits = "&format=json&jsoncallback=flickr",
-      FLICKR_SINGLE_CHECK = "flickr.com/photos/";
+      FLICKR_SINGLE_CHECK = "flickr.com/photos/",
+      PER_PAGE_MAX = 100,
+      urlRegex = /[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:\/~+#-]*[\w@?^=%&amp;\/~+#-])?/;
 
   function searchImagesFlickr( tags, count, userId, ready ) {
-    var uri = searchPhotosCmd + APIKEY + "&per_page=" + count + "&";
+    var uri = searchPhotosCmd + APIKEY + "&page=1&per_page=" + PER_PAGE_MAX;
     if ( userId && typeof userId !== "function" ) {
       uri += "&user_id=" + userId;
     }
     if ( tags ) {
-      uri += "&tags=" + tags;
+      uri += "&tags=" + window.encodeURIComponent( tags );
     }
     uri += jsonBits;
-    Popcorn.getJSONP( uri, ready || userId );
+    Popcorn.getJSONP( uri, function( data ) {
+      var callback = ready || userId;
+
+      callback( data, uri );
+    });
   }
 
-  function getPhotoSet( photosetId , ready, pluginInstance ) {
+  function getPhotoSet( photosetId, ready, pluginInstance ) {
     var photoSplit,
         ln,
         url,
@@ -58,8 +64,10 @@
       }
     }
 
-    uri = getPhotosetCmd + "&photoset_id=" + photosetId + APIKEY + jsonBits;
-    Popcorn.getJSONP( uri, ready );
+    uri = getPhotosetCmd + "&photoset_id=" + photosetId + "&per_page=" + PER_PAGE_MAX + APIKEY + jsonBits;
+    Popcorn.getJSONP( uri, function( data ) {
+      ready( data, uri );
+    });
   }
 
   function calculateInOutTimes( start, duration, count ) {
@@ -85,13 +93,13 @@
   }
 
   function createImageDiv( imageUrl, linkUrl, instance ) {
-    var div = document.createElement( "div" ),
+    var imageDiv = document.createElement( "div" ),
         link = document.createElement( "a" );
 
-    div.style.backgroundImage = "url( \"" + imageUrl + "\" )";
-    div.classList.add( "image-plugin-img" );
+    imageDiv.style.backgroundImage = "url( \"" + imageUrl + "\" )";
+    imageDiv.classList.add( "image-plugin-img" );
 
-    if ( linkUrl ) {
+    if ( linkUrl && linkUrl.match( urlRegex ) ) {
       link.setAttribute( "href", linkUrl );
 
       link.onclick = function() {
@@ -101,7 +109,7 @@
     link.setAttribute( "target", "_blank" );
     link.classList.add( "image-plugin-link" );
 
-    link.appendChild( div );
+    link.appendChild( imageDiv );
     return link;
   }
 
@@ -112,7 +120,24 @@
       var _target,
           _container,
           _flickrCallback,
+          _link,
+          _image,
           _this = this;
+
+      function setupImageDiv() {
+        _container.appendChild( _link );
+        _image = _link.querySelector( ".image-plugin-img" );
+        _image.style.left = validateDimension( options.innerLeft, "0" ) + "%";
+        _image.style.top = validateDimension( options.innerTop, "0" ) + "%";
+        if ( options.innerHeight ) {
+          _image.style.height = validateDimension( options.innerHeight, "0" ) + "%";
+        }
+        if ( options.innerWidth ) {
+          _image.style.width = validateDimension( options.innerWidth, "0" ) + "%";
+        }
+        options.link = _link;
+        options.image = _image;
+      }
 
       options._target = _target = Popcorn.dom.find( options.target );
       options._container = _container = document.createElement( "div" );
@@ -160,77 +185,101 @@
 
                 // Unfortunately not all requests contain an "Original" size option
                 // so I'm always taking the second last one. This has it's upsides and downsides
-                _container.appendChild( createImageDiv( data.sizes.size[ data.sizes.size.length - 2 ].source, options.linkSrc, _this ) );
+                _link = createImageDiv( data.sizes.size[ data.sizes.size.length - 2 ].source, options.linkSrc, _this );
+                setupImageDiv();
               }
             };
 
             Popcorn.getJSONP( uri, _flickrStaticImage );
           } else {
-            _container.appendChild( createImageDiv( options.src, options.linkSrc, _this ) );
+            _link = createImageDiv( options.src, options.linkSrc, _this );
+            setupImageDiv();
           }
-
         } else {
 
-          _flickrCallback = function( data ) {
+          var _inOuts = [],
+              _lastVisible,
+              _tagRefs = [];
+
+          options._updateImage = function() {
+            var io,
+                ref,
+                currTime = _this.currentTime(),
+                i = _tagRefs.length - 1;
+            for ( ; i >= 0; i-- ) {
+              io = _inOuts[ i ];
+              ref = _tagRefs[ i ];
+              if ( io && currTime >= io[ "in" ] && currTime < io.out && ref.classList.contains( "image-plugin-hidden" ) ) {
+                if ( _lastVisible ) {
+                  _lastVisible.classList.add( "image-plugin-hidden" );
+                }
+                ref.classList.remove( "image-plugin-hidden" );
+                _lastVisible = ref;
+                break;
+              }
+            }
+          };
+
+          _flickrCallback = function( data, url ) {
 
             var _collection = ( data.photos || data.photoset ),
                 _photos,
-                _inOuts,
-                _lastVisible,
                 _url,
-                _link,
-                _tagRefs = [],
-                _count = options.count || _photos.length;
+                _totalPhotos,
+                item;
 
             if ( !_collection ) {
               return;
             }
 
+            _totalPhotos = _collection.total;
             _photos = _collection.photo;
 
             if ( !_photos ) {
               return;
             }
 
-            Popcorn.forEach( _photos, function ( item, i ) {
-
-              _url = ( item.media && item.media.m ) || window.unescape( item.url_m );
-
-              if ( i < _count ) {
+            for ( var i = 0; i < _photos.length; i++ ) {
+              if ( options.count > _tagRefs.length ) {
+                item = _photos[ i ];
+                _url = ( item.media && item.media.m ) || window.unescape( item.url_m );
                 _link = createImageDiv( _url, _url, _this );
                 _link.classList.add( "image-plugin-hidden" );
-                _container.appendChild( _link );
+                _container.insertBefore( _link, _container.children[ i ] );
                 _tagRefs.push( _link );
+              } else {
+                break;
               }
-            });
+            }
 
-            _inOuts = calculateInOutTimes( options.start, options.end - options.start, _count );
+            if ( _tagRefs.length < options.count && _collection.page !== _collection.pages && _photos.length === PER_PAGE_MAX ) {
+              url = url.replace( /\&per\_page\=[0-9]+/, "" );
+              url += "&per_page=" + _collection.page + 1;
 
-            options._updateImage = function() {
-              var io,
-                  ref,
-                  currTime = _this.currentTime(),
-                  i = _tagRefs.length - 1;
-              for ( ; i >= 0; i-- ) {
-                io = _inOuts[ i ];
-                ref = _tagRefs[ i ];
-                if ( currTime >= io[ "in" ] && currTime < io.out && ref.classList.contains( "image-plugin-hidden" ) ) {
-                  if ( _lastVisible ) {
-                    _lastVisible.classList.add( "image-plugin-hidden" );
-                  }
-                  ref.classList.remove( "image-plugin-hidden" );
-                  _lastVisible = ref;
-                  break;
-                }
+              Popcorn.getJSONP( url, function( data ) {
+                _flickrCallback( data, url );
+              });
+            } else {
+              _inOuts = calculateInOutTimes( options.start, options.end - options.start, _tagRefs.length );
+
+              if ( !_tagRefs.length ) {
+                _this.emit( "popcorn-image-failed-retrieve" );
+                return;
               }
-            };
 
-            // Check if should be currently visible
-            options._updateImage();
+              if ( options.count !== _tagRefs.length ) {
+                options.count = _tagRefs.length;
+                // Used to sync back the new count data with Butter Events
+                _this.emit( "popcorn-image-count-update", options.count );
+              }
 
-            //  Check if should be updating
-            if ( _this.currentTime() >= options.start && _this.currentTime() <= options.end ) {
-              _this.on( "timeupdate", options._updateImage );
+              // Check if should be currently visible
+              options._updateImage();
+
+              //  Check if should be updating
+              if ( _this.currentTime() >= options.start && _this.currentTime() <= options.end ) {
+                _this.on( "timeupdate", options._updateImage );
+              }
             }
           };
 
@@ -242,11 +291,15 @@
         }
 
         options.toString = function() {
-          if ( /^data:/.test( options.src ) ) {
+          var _splitSource = [];
+          if ( options.title ) {
+            return options.title;
+          } else if ( /^data:/.test( options.src ) ) {
             // might ba a data URI
             return options.src.substring( 0 , 30 ) + "...";
           } else if ( options.src ) {
-            return options.src;
+            _splitSource = options.src.split( "/" );
+            return _splitSource[ _splitSource.length - 1 ];
           } else if ( options.tags ) {
             return options.tags;
           } else if ( options.photosetId ) {
@@ -309,12 +362,14 @@
           elem: "input",
           type: "url",
           label: "Source URL",
-          "default": "http://www.mozilla.org/media/img/home/firefox.png"
+          "default": "http://docu.softastur.org/images/d/d2/Mozilla_logo.svg",
+          FLICKR_SINGLE_CHECK: FLICKR_SINGLE_CHECK
         },
         linkSrc: {
           elem: "input",
           type: "url",
-          label: "Link URL"
+          label: "Link URL",
+          validation: urlRegex
         },
         tags: {
           elem: "input",
@@ -342,7 +397,7 @@
           elem: "input",
           type: "number",
           label: "Width",
-          "default": 80,
+          "default": 60,
           "units": "%",
           hidden: true
         },
@@ -350,7 +405,7 @@
           elem: "input",
           type: "number",
           label: "Height",
-          "default": 80,
+          "default": 60,
           "units": "%",
           hidden: true
         },
@@ -358,7 +413,7 @@
           elem: "input",
           type: "number",
           label: "Top",
-          "default": 10,
+          "default": 0,
           "units": "%",
           hidden: true
         },
@@ -366,9 +421,43 @@
           elem: "input",
           type: "number",
           label: "Left",
-          "default": 10,
+          "default": 0,
           "units": "%",
           hidden: true
+        },
+        innerTop: {
+          elem: "input",
+          type: "number",
+          "default": 0,
+          "units": "%",
+          hidden: true
+        },
+        innerLeft: {
+          elem: "input",
+          type: "number",
+          "default": 0,
+          "units": "%",
+          hidden: true
+        },
+        innerWidth: {
+          elem: "input",
+          type: "number",
+          "default": 0,
+          "units": "%",
+          hidden: true
+        },
+        innerHeight: {
+          elem: "input",
+          type: "number",
+          "default": 0,
+          "units": "%",
+          hidden: true
+        },
+        title: {
+          elem: "input",
+          type: "text",
+          label: "Image Title",
+          "default": ""
         },
         transition: {
           elem: "select",
@@ -379,13 +468,13 @@
         },
         start: {
           elem: "input",
-          type: "number",
+          type: "text",
           label: "Start",
           units: "seconds"
         },
         end: {
           elem: "input",
-          type: "number",
+          type: "text",
           label: "End",
           units: "seconds"
         },

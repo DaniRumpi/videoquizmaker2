@@ -120,12 +120,14 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
           }
         });
 
-        // Override default scrollbar to account for both tab containers
-        extendObject.addScrollbar({
-          inner: wrapper,
-          outer: wrapper,
-          appendTo: rootElement.querySelector( ".scrollbar-container" )
-        });
+        if ( !extendObject.scrollbar ) {
+          // Override default scrollbar to account for both tab containers
+          extendObject.addScrollbar({
+            inner: wrapper,
+            outer: wrapper,
+            appendTo: rootElement.querySelector( ".scrollbar-container" )
+          });
+        }
       }
       else if ( basicButton && advancedButton ) {
         basicButton.addEventListener( "mouseup", function() {
@@ -196,9 +198,11 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
     };
 
     extendObject.createBreadcrumbs = function( trackEvent ) {
+console.log("default", extendObject.defaultLayouts);
       var oldTitleEl = rootElement.querySelector( "h1" ),
-          breadcrumbsLayout = extendObject.defaultLayouts.querySelector( ".butter-breadcrumbs" ),
-          backLink = breadcrumbsLayout.querySelector( ".butter-breadcrumbs-back" ),
+          breadcrumbsLayout = extendObject.defaultLayouts.querySelector( ".butter-breadcrumbs" );
+      if (!breadcrumbsLayout) return;
+          var backLink = breadcrumbsLayout.querySelector( ".butter-breadcrumbs-back" ),
           editorTitle =  breadcrumbsLayout.querySelector( ".butter-editor-title" ),
           closeEditorLink =  breadcrumbsLayout.querySelector( ".close-btn" ),
           pluginName = trackEvent.manifest.displayName || trackEvent.type;
@@ -573,6 +577,8 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
         }
         return val;
       }
+
+      if (!element) return;
 
       element.addEventListener( "blur", function() {
         var val = element.value;
@@ -970,11 +976,19 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
         throw "Unable to create properties from null manifest. Perhaps trackevent is not initialized properly yet.";
       }
 
-      extendObject.createBreadcrumbs( trackEvent );
+      //extendObject.createBreadcrumbs( trackEvent );
 
       manifestOptions = trackEvent.manifest.options;
 
       manifestKeys = options.manifestKeys || Object.keys( manifestOptions );
+
+      //$(basicContainer).children().remove();
+      if (options.trackEvent.type === "quizme") {
+        $(basicContainer).find(".start-end").filter(":not(:first)").remove();
+        $(basicContainer).children(":not(.start-end)").remove();
+        advancedContainer.innerHTML = "";
+        styleContainer.innerHTML = "";
+      }
 
       for ( i = 0, l = manifestKeys.length; i < l; ++i ) {
         item = manifestKeys[ i ];

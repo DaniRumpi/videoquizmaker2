@@ -10,7 +10,8 @@ define( [ "util/lang", "util/xhr",
   function( LangUtils, xhr,
             BaseEditor, TrackEventEditor ) {
 
-  var __editors = {};
+  var __editors = {},
+      __editorHelperCallbacks = {};
 
   function DeferredLayout( src ) {
 
@@ -41,7 +42,7 @@ define( [ "util/lang", "util/xhr",
      * @param {String} layoutSrc: String representing the basic HTML layout of the editor. May be prepended with "load!" to signify that load must be done after butter is initialized.
      * @param {Function} ctor: Constructor to be run when the Editor is being created
      */
-    register: function( name, layoutSrc, ctor, persist ) {
+    register: function( name, layoutSrc, ctor, persist, editorHelperCallback ) {
       __editors[ name ] = {
         create: ctor,
         persist: !!persist,
@@ -57,6 +58,10 @@ define( [ "util/lang", "util/xhr",
            return true;
         }
         return false;
+      }
+
+      if ( editorHelperCallback ) {
+        __editorHelperCallbacks[ name ] = editorHelperCallback;
       }
 
       if ( layoutSrc ) {
@@ -106,7 +111,7 @@ define( [ "util/lang", "util/xhr",
               editor.deferredLayouts = null;
               ++editorsLoaded;
               if ( editorsLoaded === editorsToLoad.length ) {
-                readyCallback();
+                readyCallback( __editorHelperCallbacks );
               }
             }
           });

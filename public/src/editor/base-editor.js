@@ -206,6 +206,7 @@ define( [ "core/eventmanager", "util/scrollbars", "ui/widget/tooltip", "ui/widge
      *                   readOnly: Force input element to be read-only.
      */
     extendObject.wrapTextInputElement = function( element, options ) {
+      if (!element) return;
       return TextboxWrapper.applyTo( element, options );
     };
 
