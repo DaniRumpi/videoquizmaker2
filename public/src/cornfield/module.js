@@ -21,16 +21,17 @@ define( [ "util/xhr" ], function( xhr ) {
         if ( assertion ) {
           xhr.post( "/persona/verify", { assertion: assertion }, function( response ) {
             if ( response.status === "okay" ) {
-
               // Get email, name, and username after logging in successfully
               whoami( callback );
               return;
             }
+console.debug("assertion_response", response);
 
             // If there was an error of some sort, callback on that
             callback( response );
           });
         } else {
+console.debug("!assertion_response", response);
           callback();
         }
       });
@@ -58,6 +59,8 @@ define( [ "util/xhr" ], function( xhr ) {
       whoami( function( response ) {
         if ( !response.error ) {
           butter.dispatch( "autologinsucceeded", response );
+        } else {
+          console.debug("whoami_response", response);
         }
       });
     });
