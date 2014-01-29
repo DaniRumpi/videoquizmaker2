@@ -630,7 +630,8 @@ app.post('/api/deletequiz', filter.isStorageAvailable, function( req, res ) {
 });
 //app.get( '/healthcheck', routes.api.healthcheck );
 
-app.listen( config.PORT, function() {
+//app.listen( config.PORT, function() {
+app.listen( process.env.PORT, function() {
   console.log( 'HTTP Server started on ' + APP_HOSTNAME );
   console.log( 'Press Ctrl+C to stop' );
 });
