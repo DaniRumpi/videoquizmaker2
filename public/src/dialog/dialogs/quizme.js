@@ -34,10 +34,10 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
 
     // Save and Close (on variable Butter.QuizOptions)
     var saveAndClose = function () {
-        this.Popcorn.manifest.quizme.options.name.options = ["Default"];
         for (name in GlobalQuiz) {
             this.Popcorn.manifest.quizme.options.name.options.push(name);
         }
+        $(window).off("resize", updateScrollbar);
     }
     dialog.registerActivity( "close", function( e ) {
         saveAndClose();
@@ -247,7 +247,7 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
                 }
                 manager.isFirstStart && manager.firstStart();
             }
-            dialog["quizzesScrollbar"].update();
+            updateScrollbar();
             $spinnerWrap.hide();
         },
         receiveQuiz: function (data) {
@@ -307,7 +307,7 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
                 }
                 !!action && action.animate === "delete" && manager.cleanQuestionEdit();
             }
-            dialog["questionsScrollbar"].update();
+            updateScrollbar();
         },
         getQuiz: function (name) {
             if (Object.keys( GlobalQuiz[name] ).length === 0) {
@@ -870,10 +870,13 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
     });
 
     // Resize Dialog
-    $(window).resize(function() {
-        dialog["quizzesScrollbar"].update();
-        dialog["questionsScrollbar"].update();
-    });
+    var updateScrollbar = function() {
+        if (dialog) {
+            dialog["quizzesScrollbar"] && dialog["quizzesScrollbar"].update();
+            dialog["questionsScrollbar"] && dialog["questionsScrollbar"].update();
+        }
+    }
+    $(window).resize(updateScrollbar);
 
     addScrollbar($quizzes.parents(".scrollbar-container")[0], "quizzesScrollbar");
     addScrollbar($questions.parents(".scrollbar-container")[0], "questionsScrollbar");

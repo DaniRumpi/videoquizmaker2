@@ -31,7 +31,6 @@
   var GlobalQuiz = {"TrueFalse": TrueFalse};
 
   var updateManifestName = function(manifest, option) {
-    console.log($.extend({}, manifest));
     if (manifest && manifest.name && manifest.name.options) {
       if ($.inArray(option, manifest.name.options) === -1) {
         manifest.name.options.push(option);
@@ -86,7 +85,7 @@
       options.quiz = {};
       options.quiz[options.name] = Butter.QuizOptions[options.name];
       createQuiz(options);
-      //console.log("manifest", manifest); // update manifest
+      // update manifest
       updateManifestName(manifest, options.name);
     }
     // The quizzes are stored on GlobalQuiz
