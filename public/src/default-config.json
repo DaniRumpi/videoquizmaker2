@@ -42,6 +42,10 @@
         "icon": "{{baseDir}}templates/assets/plugins/image/image-icon.png"
       },
       {
+        "type": "wikipedia",
+        "icon": "{{baseDir}}templates/assets/plugins/wikipedia/wikipedia-icon.png"
+      },
+      {
         "type": "loopPlugin",
         "displayName": "loop",
         "icon": "{{baseDir}}templates/assets/plugins/loopPlugin/loop-icon.png"
@@ -54,10 +58,6 @@
         "type": "pausePlugin",
         "displayName": "Pause",
         "icon": "{{baseDir}}templates/assets/plugins/pausePlugin/pause-icon.png"
-      },
-      {
-        "type": "wikipedia",
-        "icon": "{{baseDir}}templates/assets/plugins/wikipedia/wikipedia-icon.png"
       },
       {
         "type": "sequencer",
