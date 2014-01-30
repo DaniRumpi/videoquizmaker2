@@ -51,6 +51,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
         for(var n in response.all) {
           Butter.QuizOptions[response.all[n].name] = JSON.parse(response.all[n].data);
         }
+        window.Popcorn.manifest.quizme.options.name.options = Object.keys(Butter.QuizOptions);
       }
     }
 
