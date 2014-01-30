@@ -68,7 +68,15 @@
   }
 
   var getQuiz = function(that, options, manifest) {
-    // if we have the store quiz, do nothing
+    // First if we are in butter then look for new quizzes in QuizOptions
+    if (Butter && Butter.QuizOptions && Butter.QuizOptions[options.name]) {
+      options.quiz = {};
+      options.quiz[options.name] = Butter.QuizOptions[options.name];
+      createQuiz(options);
+      // Update manifest
+      manifest.name.options = Object.keys(Butter.QuizOptions);
+    }
+    // if we have the store quiz
     if (options.quiz && options.quiz[options.name]) {
       createQuiz(options);
       updateManifestName(manifest, options.name);
@@ -80,14 +88,6 @@
       // update manifest
       updateManifestName(manifest, options.name);
     }
-    // We are in Butter Editor
-    else if (!!Butter && Butter.QuizOptions && Butter.QuizOptions[options.name]) {
-      options.quiz = {};
-      options.quiz[options.name] = Butter.QuizOptions[options.name];
-      createQuiz(options);
-      // update manifest
-      updateManifestName(manifest, options.name);
-    }
     // The quizzes are stored on GlobalQuiz
     else if (GlobalQuiz && GlobalQuiz[options.name]) {
       options.quiz = {};
@@ -95,22 +95,22 @@
       createQuiz(options);
       updateManifestName(manifest, options.name);
     }
-    // Get quizzes from Popcorn.xhr
+    // The last option: we get quizzes from Popcorn.xhr
     else if (!!Butter && Butter.QuizOptions) { // We are in Butter
       gettingQuizzes = true;
       that.getQuizzes(function(data) {
-        gettingQuizzes = false;
-        GlobalQuiz = {"TrueFalse": TrueFalse};
+        Butter.QuizOptions = {};
         for(var n in data.json.all) {
-          GlobalQuiz[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
+          Butter.QuizOptions[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
         }
         options.quiz = {};
         options.quiz[options.name] = GlobalQuiz[options.name];
         createQuiz(options);
         // updateManifestName
-        manifest.name.options = Object.keys(GlobalQuiz);
+        manifest.name.options = Object.keys(Butter.QuizOptions);
+        gettingQuizzes = false;
       });
-    } 
+    }
   }
 
   Popcorn.plugin( "quizme", {
@@ -342,6 +342,7 @@
 
     start: function( event, options ) {
       if (!options.$container.children().hasClass("quiz-el") && !gettingQuizzes) {
+        var manifest = Popcorn.manifest.quizme.options;
         getQuiz(this, options, manifest);
       }
       if ( options._container ) {
@@ -357,7 +358,7 @@
         options._container.classList.add( "off" );
         options._container.classList.remove( "on" );
         options._container.style.display = "none";
-        //options.$container.find(".quiz-el").remove();
+        options.$container.find(".quiz-el").remove();
       }
     },
 
