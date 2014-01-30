@@ -99,6 +99,12 @@
     else if (!!Butter && Butter.QuizOptions) { // We are in Butter
       gettingQuizzes = true;
       that.getQuizzes(function(data) {
+        if (data.json && data.json.error === "unauthorized") {
+          options._container.innerHTML = "jQuizme Error: Quiz '" +options.name+ "' has no questions";
+          updateManifestName(manifest, "TrueFalse");
+          gettingQuizzes = false;
+          return;
+        }
         Butter.QuizOptions = {};
         for(var n in data.json.all) {
           Butter.QuizOptions[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
