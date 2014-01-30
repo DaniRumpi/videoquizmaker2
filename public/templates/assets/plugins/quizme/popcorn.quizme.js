@@ -6,6 +6,17 @@
     return fallback;
   }
 
+  var TrueFalse = { "tf": [
+    {
+      "ques": "The official language of all the countries in South America is Spanish.",
+      "ans": false,
+    },
+    {
+      "ques": "Shaking hands with women is acceptable in Indonesia.",
+      "ans": true
+    }
+  ]};
+
   var optDefault = {
       title: "Simple statements",
       disableRestart: true,
@@ -17,6 +28,16 @@
       showFeedback: false
   };
   var target, gettingQuizzes;
+  var GlobalQuiz = {"TrueFalse": TrueFalse};
+
+  var updateManifestName = function(manifest, option) {
+    console.log($.extend({}, manifest));
+    if (manifest && manifest.name && manifest.name.options) {
+      if ($.inArray(option, manifest.name.options) === -1) {
+        manifest.name.options.push(option);
+      }
+    }
+  }
 
   var changeQuizCSS = function($elem, options) {
     if (options.color && options.color !== $elem.attr("color-quiz")) {
@@ -38,22 +59,59 @@
     }
   }
 
-  // get Quizzes
-  var GlobalQuiz = {};
   var createQuiz = function(options) {
-    if (!!options.name && GlobalQuiz[options.name]) {
-      options.quiz = GlobalQuiz[options.name];
-    } else {
-      options.quiz = GlobalQuiz["TrueFalse"]; // Default
-    }
     if (!!options.quiz) {
-
       options.$container.find(".quiz-el").remove();
-      options.$container.jQuizMe(options.quiz, options.optQuiz, options.callback);
-      var $quizElem = options.$container.find(".quiz-el");
+      options.$container.jQuizMe(options.quiz[options.name], options.optQuiz, options.callback);
       // Change Quiz Appearence
-      changeQuizCSS($quizElem, options);
+      changeQuizCSS(options.$container.find(".quiz-el"), options);
     }
+  }
+
+  var getQuiz = function(that, options, manifest) {
+    // if we have the store quiz, do nothing
+    if (options.quiz && options.quiz[options.name]) {
+      createQuiz(options);
+      updateManifestName(manifest, options.name);
+    }
+    // Default quiz
+    else if (options.name === "TrueFalse" ) {
+      options.quiz = {"TrueFalse": TrueFalse};
+      createQuiz(options);
+      // update manifest
+      updateManifestName(manifest, options.name);
+    }
+    // We are in Butter Editor
+    else if (!!Butter && Butter.QuizOptions && Butter.QuizOptions[options.name]) {
+      options.quiz = {};
+      options.quiz[options.name] = Butter.QuizOptions[options.name];
+      createQuiz(options);
+      //console.log("manifest", manifest); // update manifest
+      updateManifestName(manifest, options.name);
+    }
+    // The quizzes are stored on GlobalQuiz
+    else if (GlobalQuiz && GlobalQuiz[options.name]) {
+      options.quiz = {};
+      options.quiz[options.name] = GlobalQuiz[options.name];
+      createQuiz(options);
+      updateManifestName(manifest, options.name);
+    }
+    // Get quizzes from Popcorn.xhr
+    else if (!!Butter && Butter.QuizOptions) { // We are in Butter
+      gettingQuizzes = true;
+      that.getQuizzes(function(data) {
+        gettingQuizzes = false;
+        GlobalQuiz = {"TrueFalse": TrueFalse};
+        for(var n in data.json.all) {
+          GlobalQuiz[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
+        }
+        options.quiz = {};
+        options.quiz[options.name] = GlobalQuiz[options.name];
+        createQuiz(options);
+        // updateManifestName
+        manifest.name.options = Object.keys(GlobalQuiz);
+      });
+    } 
   }
 
   Popcorn.plugin( "quizme", {
@@ -76,7 +134,7 @@
         },
         name: {
           elem: "select", 
-          options: [], 
+          options: ["TrueFalse"], 
           label: "Quiz",
           "default": "TrueFalse"
         },
@@ -146,7 +204,7 @@
           type: "color",
           optional: true,
           label: "Custom Header Font Color",
-          "default": "#FFF",
+          "default": "#ffffff",
           group: "style"
         },
         customBodyColor: {
@@ -267,11 +325,6 @@
       options.optQuiz.allRandom = options.random;
       options.optQuiz.intro = options.intro;
 
-/*      // Change color Quiz
-      if (!options.color) {
-        options.color = manifest.color.default;
-      }*/
-
       // Object Callback with functions that jquizme execute when finish
       options.callback = {
         popcorn: this,
@@ -281,36 +334,16 @@
         }
       }
       options.$container = $(options._container);
-      if ( $.isEmptyObject(GlobalQuiz) ) {
-        gettingQuizzes = true;
-        this.getQuizzes(function(data) {
-          gettingQuizzes = false;
-          for(var n in data.json.all) {
-            GlobalQuiz[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
-          }
-          createQuiz(options);
-        });
+
+      if (!options.name) {
+        options.name = "TrueFalse";
       }
-      else {
-        createQuiz(options);
-      }
+      getQuiz(this, options, manifest);
     },
 
     start: function( event, options ) {
       if (!options.$container.children().hasClass("quiz-el") && !gettingQuizzes) {
-        if ( $.isEmptyObject(GlobalQuiz) ) {
-          gettingQuizzes = true;
-          this.getQuizzes(function(data) {
-            gettingQuizzes = false;
-            for(var n in data.json.all) {
-              GlobalQuiz[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
-            }
-            createQuiz(options);
-          });
-        }
-        else {
-          createQuiz(options);
-        }
+        getQuiz(this, options, manifest);
       }
       if ( options._container ) {
         options._container.classList.add( "on" );
@@ -325,6 +358,7 @@
         options._container.classList.add( "off" );
         options._container.classList.remove( "on" );
         options._container.style.display = "none";
+        //options.$container.find(".quiz-el").remove();
       }
     },
 
