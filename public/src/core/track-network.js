@@ -577,7 +577,7 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 			instance.lines.removeLine(endId);
 
 			lineEvt.line.remove();
-			trackNetwork.removeLineInLayer(line); // remove reference in the layer
+			trackNetwork.removeLineInLayer(lineEvt.line); // remove reference in the layer
 			// layer.draw();
 		}
 
