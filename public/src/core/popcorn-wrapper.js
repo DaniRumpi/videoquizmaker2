@@ -111,6 +111,10 @@ define( [
             popcornEvent.disable = newOptions.disable;
           }
         }
+        // reverse Sync, update TrackEvent from PopcornEvent
+        if (popcornEvent.quizJSON && popcornEvent.quizJSON !== trackEvent.popcornOptions) {
+          trackEvent.popcornOptions.quizJSON = popcornEvent.quizJSON;
+        }
 
         trackEvent.popcornTrackEvent = popcornEvent;
 

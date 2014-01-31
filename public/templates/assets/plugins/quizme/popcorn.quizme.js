@@ -27,8 +27,24 @@
       hoverClass: "q-ol-hover",
       showFeedback: false
   };
-  var target, gettingQuizzes;
+  var target, gettingQuizzes, _Butter;
   var GlobalQuiz = {"TrueFalse": TrueFalse};
+
+  // We are on Editor
+  if (typeof Butter !== "undefined") {
+    _Butter = Butter;
+  }
+
+  var errorNotifier = function (options, plus) {
+    var error = [
+      "<div class='error-quiz'>",
+      !!plus? plus + " >> " : "",
+      "jQuizme Error: Quiz '",
+      options.name,
+      "' has no questions</div>"
+    ].join("");
+    options._container.appendChild(error);
+  }
 
   var updateManifestName = function(manifest, option) {
     if (manifest && manifest.name && manifest.name.options) {
@@ -59,63 +75,71 @@
   }
 
   var createQuiz = function(options) {
-    if (!!options.quiz) {
-      options.$container.find(".quiz-el").remove();
-      options.$container.jQuizMe(options.quiz[options.name], options.optQuiz, options.callback);
+    if (!!options.quizJSON) {
+      options.$container.find(".error-quiz, .quiz-el").remove();
+      options.$container.jQuizMe(options.quizJSON[options.name], options.optQuiz, options.callback);
       // Change Quiz Appearence
       changeQuizCSS(options.$container.find(".quiz-el"), options);
     }
   }
 
   var getQuiz = function(that, options, manifest) {
-    // First if we are in butter then look for new quizzes in QuizOptions
-    if (Butter && Butter.QuizOptions && Butter.QuizOptions[options.name]) {
-      options.quiz = {};
-      options.quiz[options.name] = Butter.QuizOptions[options.name];
-      createQuiz(options);
-      // Update manifest
-      manifest.name.options = Object.keys(Butter.QuizOptions);
-    }
-    // if we have the store quiz
-    if (options.quiz && options.quiz[options.name]) {
-      createQuiz(options);
-      updateManifestName(manifest, options.name);
-    }
-    // Default quiz
-    else if (options.name === "TrueFalse" ) {
-      options.quiz = {"TrueFalse": TrueFalse};
-      createQuiz(options);
-      // update manifest
-      updateManifestName(manifest, options.name);
-    }
-    // The quizzes are stored on GlobalQuiz
-    else if (GlobalQuiz && GlobalQuiz[options.name]) {
-      options.quiz = {};
-      options.quiz[options.name] = GlobalQuiz[options.name];
-      createQuiz(options);
-      updateManifestName(manifest, options.name);
-    }
-    // The last option: we get quizzes from Popcorn.xhr
-    else if (!!Butter && Butter.QuizOptions) { // We are in Butter
-      gettingQuizzes = true;
-      that.getQuizzes(function(data) {
-        if (data.json && data.json.error === "unauthorized") {
-          options._container.innerHTML = "jQuizme Error: Quiz '" +options.name+ "' has no questions";
-          updateManifestName(manifest, "TrueFalse");
-          gettingQuizzes = false;
-          return;
-        }
-        Butter.QuizOptions = {};
-        for(var n in data.json.all) {
-          Butter.QuizOptions[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
-        }
-        options.quiz = {};
-        options.quiz[options.name] = GlobalQuiz[options.name];
+
+    // if we are in butter then look for new quizzes in QuizOptions
+    if (!!_Butter) {
+      if (!!_Butter.QuizOptions && !!_Butter.QuizOptions[options.name]) {
+        options.quizJSON = {};
+        options.quizJSON[options.name] = _Butter.QuizOptions[options.name];
         createQuiz(options);
-        // updateManifestName
-        manifest.name.options = Object.keys(Butter.QuizOptions);
-        gettingQuizzes = false;
-      });
+        // Update manifest
+        manifest.name.options = Object.keys(_Butter.QuizOptions);
+      }
+      else { // Use Popcorn.xhr to get Quizzes
+        gettingQuizzes = true;
+
+        that.getQuizzes(function(data) {
+
+          if (data.json && data.json.error === "unauthorized") {
+            errorNotifier(options, "unauthorized");
+            updateManifestName(manifest, "TrueFalse");
+            gettingQuizzes = false;
+            return;
+          }
+
+          _Butter.QuizOptions = {};
+          for(var n in data.json.all) { // Get all quizzes
+            _Butter.QuizOptions[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
+          }
+          options.quizJSON = {};
+          options.quizJSON[options.name] = _Butter.QuizOptions[options.name];
+
+          if (options.quizJSON && options.quizJSON[options.name]) {
+            createQuiz(options);
+            // updateManifestName
+            manifest.name.options = Object.keys(_Butter.QuizOptions);
+          }
+          else {
+            errorNotifier(options);
+            updateManifestName(manifest, "TrueFalse");
+          }
+          gettingQuizzes = false;
+        });
+      }
+    }
+    // we are not in butter
+    else {
+
+      if (!!options.quizJSON && !!options.quizJSON[options.name]) {
+        createQuiz(options);
+        updateManifestName(manifest, options.name);
+      }
+      // Default quiz
+      if (options.name === "TrueFalse" ) {
+        options.quizJSON = {"TrueFalse": TrueFalse};
+        createQuiz(options);
+        // update manifest
+        updateManifestName(manifest, options.name);
+      }
     }
   }
 
@@ -182,14 +206,15 @@
         color: {
           elem: "select", 
           options: [
-            "darkQuiz",
-            "whiteQuiz",
-            "redQuiz",
-            "yellowQuiz",
-            "goldQuiz",
-            "greenQuiz",
-            "blueQuiz",
-            "darkGreyQuiz",
+            "dark",
+            "white",
+            "red",
+            "yellow",
+            "gold",
+            "green",
+            "blue",
+            "darkGrey",
+            "transparent",
             "custom"
           ], 
           label: "Color Quiz",
@@ -286,6 +311,12 @@
         },
         zindex: {
           "default": 1,
+          hidden: true
+        },
+        quizJSON: {
+          elem: "textarea",
+          label: "quiz",
+          optional: true,
           hidden: true
         },
         target: {

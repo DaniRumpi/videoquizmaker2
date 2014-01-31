@@ -26,11 +26,7 @@ var templateConfigs = {};
 
 var quizzes = require('./quizzes.json');
 var TrueFalse = {"tf": quizzes['tf']};
-var Fill = {"fill": quizzes['fill']};
-var MultiList = {"multiList": quizzes['multiList']};
 var quizTF = {name: "TrueFalse", data: TrueFalse};
-var quizFILL = {name: "Fill", data: Fill};
-var quizMultiList = {name: "MultiList", data: MultiList};
 
 function readTemplateConfig( templateName, templatedPath ) {
   var configPath = templatedPath.replace( '{{templateBase}}', config.dirs.templates + '/' );
@@ -495,22 +491,6 @@ app.get('/api/quizzes', filter.isStorageAvailable, function(req, res) {
         if (!err) {
           docs.push({'id': doc.id, 'name': doc.name})
         }
-      Project.createQuiz( email, quizFILL, function(err, doc){
-        if (!err) {
-          docs.push({'id': doc.id, 'name': doc.name})
-        }
-      Project.createQuiz( email, quizMultiList, function(err, doc){
-        if (!err) {
-          docs.push({'id': doc.id, 'name': doc.name})
-        }
-        var aux = new Object();
-        for (var i = 0; i < docs.length; i+=1) {
-          aux[docs[i].id] = docs[i].name;
-        }
-        res.json({ quiz: aux }, 200);
-        return;
-      });
-      });
       });
     } else {
       var aux = new Object();

@@ -1,19 +1,19 @@
 /*
-* jQuizMe - jQuery quiz plugin
+* jMe - jQuery quiz plugin
 *
 * @version 2.2.1
 * @date 10/09/2012
 */
 
 // COLORS
-@redQuiz: #D3473C;
-@blueQuiz: #47A4BE;
-@greenQuiz: #3FB58E;
-@yellowQuiz: #ffaa33;
-@goldQuiz: #DCB20C;
-@darkGreyQuiz: #3A3C3C;
-@darkQuiz: #052938;
-@whiteQuiz: #fff;
+@red: #D3473C;
+@blue: #47A4BE;
+@green: #3FB58E;
+@yellow: #ffaa33;
+@gold: #DCB20C;
+@darkGrey: #3A3C3C;
+@dark: #052938;
+@white: #fff;
 @paddingAll: 0.2em; 
 
 .jquizme-container {
@@ -28,7 +28,7 @@
     height: 100%;
     box-sizing: border-box;
     box-shadow: 0px 0px 10px #555;
-    border: @paddingAll solid @darkQuiz;
+    border: @paddingAll solid @dark;
     background: white;
     div {
         padding: @paddingAll;
@@ -46,6 +46,14 @@
                 color: #555;
             }
         }
+        &[type="text"] {
+            border: 1px solid #CCC;
+            border-radius: 2px;
+            margin: 1em 0;
+        }
+        &.trueRadio, &.falseRadio {
+            margin: 0.5em 0;
+        }
     }
     /* .q-innerArea = .q-header, .q-help, .q-prob, .q-intro, .q-gameOver */
     .q-innerArea {
@@ -53,7 +61,7 @@
         clear: both;
     }
     .q-header-main {
-        background: @darkQuiz;
+        background: @dark;
         color: white;
     }
     .q-help, .q-ansSel, .userInputArea {
@@ -104,7 +112,7 @@
         margin-right: auto;
     }
     .q-gameOver .q-statTotal{
-        color: @darkQuiz;
+        color: @dark;
     }
     .q-quesInput{
         width: 95%;
@@ -155,65 +163,76 @@
         height:0;
     }
 }
-
-/* Color Quiz*/
-.quiz-el[color-quiz="yellowQuiz"] {
-    border-color: @yellowQuiz;
+.quiz-el[color-quiz="custom"] {
+    background: white;
+    color: black;
+}
+/* Color */
+.quiz-el[color-quiz="yellow"] {
+    border-color: @yellow;
     .q-header-main {
-        background: @yellowQuiz;
+        background: @yellow;
         color: white;
     }
 }
-.quiz-el[color-quiz="darkQuiz"] {
-    border-color: @darkQuiz;
+.quiz-el[color-quiz="dark"] {
+    border-color: @dark;
     .q-header-main {
-        background: @darkQuiz;
+        background: @dark;
         color: white;
     }
 }
-.quiz-el[color-quiz="redQuiz"] {
-    border-color: @redQuiz;
+.quiz-el[color-quiz="red"] {
+    border-color: @red;
     .q-header-main {
-        background: @redQuiz;
+        background: @red;
         color: white;
     }
 }
-.quiz-el[color-quiz="greenQuiz"] {
-    border-color: @greenQuiz;
+.quiz-el[color-quiz="green"] {
+    border-color: @green;
     .q-header-main {
-        background: @greenQuiz;
+        background: @green;
         color: white;
     }
 }
-.quiz-el[color-quiz="darkGreyQuiz"] {
-    border-color: @darkGreyQuiz;
+.quiz-el[color-quiz="darkGrey"] {
+    border-color: @darkGrey;
     .q-header-main {
-        background: @darkGreyQuiz;
+        background: @darkGrey;
         color: white;
     }
 }
-.quiz-el[color-quiz="blueQuiz"] {
-    border-color: @blueQuiz;
+.quiz-el[color-quiz="blue"] {
+    border-color: @blue;
     .q-header-main {
-        background: @blueQuiz;
+        background: @blue;
         color: white;
     }
 }
-.quiz-el[color-quiz="goldQuiz"] {
-    border-color: @goldQuiz;
+.quiz-el[color-quiz="gold"] {
+    border-color: @gold;
     .q-header-main {
-        background: @goldQuiz;
+        background: @gold;
         color: white;
     }
 }
-.quiz-el[color-quiz="whiteQuiz"] {
-    border-color: @whiteQuiz;
+.quiz-el[color-quiz="white"] {
+    border-color: @white;
     .q-header-main {
-        background: @whiteQuiz;
+        background: @white;
         color: black;
     }
 }
 .quiz-el:not([color-quiz="custom"]) {
     background: white;
     color: black;
+}
+.quiz-el[color-quiz="transparent"] {
+    border-color: rgba(0,0,0,0);
+    background: rgba(0,0,0,0);
+    .q-header-main {
+        background: rgba(0,0,0,0);
+        color: black;
+    }
 }

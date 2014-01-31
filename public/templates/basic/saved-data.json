@@ -14,24 +14,7 @@
         "tracks": [{
             "name": "Layer",
             "id": "0",
-            "trackEvents": [{
-                "id": "TrackEvent0",
-                "type": "quizme",
-                "popcornOptions": {
-                    "start": 1,
-                    "end": 6,
-                    "target": "video-container",
-                    "title": "Simple statements",
-                    "name": "Fill",
-                    "width": 60,
-                    "height": 80,
-                    "top": 0,
-                    "left": 10,
-                    "transition": "popcorn-fade"
-                },
-                "track": "Layer0",
-                "name": "TrackEvent0"
-            }]
+            "trackEvents": []
         }]
     }],
     "name": "My new project",

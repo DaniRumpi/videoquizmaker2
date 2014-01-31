@@ -428,6 +428,7 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 						}
 					});
 					dialog.open( "empty" );
+					trackNetwork.calculateLines("trackeventupdated", start);
 				});
 				layer.add(line);
 
@@ -477,6 +478,7 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 						}
 					});
 					dialog.open( "empty" );
+					trackNetwork.calculateLines("trackeventupdated", start);
 				});
 
 				layer.add(line);

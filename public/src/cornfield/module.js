@@ -25,13 +25,10 @@ define( [ "util/xhr" ], function( xhr ) {
               whoami( callback );
               return;
             }
-console.debug("assertion_response", response);
-
             // If there was an error of some sort, callback on that
             callback( response );
           });
         } else {
-console.debug("!assertion_response", response);
           callback();
         }
       });
@@ -59,8 +56,6 @@ console.debug("!assertion_response", response);
       whoami( function( response ) {
         if ( !response.error ) {
           butter.dispatch( "autologinsucceeded", response );
-        } else {
-          console.debug("whoami_response", response);
         }
       });
     });
@@ -82,7 +77,7 @@ console.debug("!assertion_response", response);
     };
 
     function publishPlaceholder( id, callback ) {
-      console.warn( "Warning: Popcorn Maker publish is already in progress. Ignoring request." );
+      console.warn( "Warning: Videoquiz Maker publish is already in progress. Ignoring request." );
       callback( { error: "Publish is already in progress. Ignoring request." } );
     }
 
@@ -113,7 +108,7 @@ console.debug("!assertion_response", response);
     };
 
     function savePlaceholder( id, data, callback ) {
-      console.warn( "Warning: Popcorn Maker save is already in progress. Ignoring request." );
+      console.warn( "Warning: Videoquiz Maker save is already in progress. Ignoring request." );
       callback( { error: "Save is already in progress. Ignoring request." } );
     }
 

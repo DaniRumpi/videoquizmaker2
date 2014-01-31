@@ -34,10 +34,9 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
 
     // Save and Close (on variable Butter.QuizOptions)
     var saveAndClose = function () {
-        for (name in GlobalQuiz) {
-            this.Popcorn.manifest.quizme.options.name.options.push(name);
-        }
         $(window).off("resize", updateScrollbar);
+        Butter.app.deselectAllTrackEvents();
+        this.Popcorn.manifest.quizme.options.name.options = Object.keys(GlobalQuiz);
     }
     dialog.registerActivity( "close", function( e ) {
         saveAndClose();
