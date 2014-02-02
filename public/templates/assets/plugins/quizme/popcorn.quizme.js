@@ -147,6 +147,11 @@
           if (data.json && data.json.error === "unauthorized") {
             errorNotifier(options, "unauthorized");
             updateManifestName(manifest, deafultQuizName);
+            if (options.name === deafultQuizName ) { // Default quiz
+              options.quizJSON = {};
+              options.quizJSON[deafultQuizName] = Tutorial;
+              createQuiz(options);
+            }
             gettingQuizzes = false;
             return;
           }
