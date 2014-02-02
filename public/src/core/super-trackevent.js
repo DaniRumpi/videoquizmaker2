@@ -14,7 +14,16 @@ define( [ "core/eventmanager" ],
         _this = this,
         _subTrackEvents = {},
         _allBackground = [
-          "yellowgreen", "chocolate", "seagreen", "brown"
+          "cornflowerblue",
+          "darkslategrey",
+          "darkseagreen",
+          "yellowgreen",
+          "steelblue",
+          "indianred",
+          "chocolate",
+          "darkcyan",
+          "seagreen",
+          "brown"
         ],
         _element,
         _parent,

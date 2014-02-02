@@ -64,6 +64,7 @@ define( [ "core/trackevent", "core/track", "core/eventmanager",
       // Align the timebar again to remove jitter
       // TODO: this is expensive, and only fixes 50% of the problem
       _timebar.update();
+      butter.trackNetwork.updateLinesOfLayer();
     }
 
     _media.listen( "mediaplay", function(){

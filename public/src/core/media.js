@@ -56,6 +56,8 @@
               pause: function(){
                 clearInterval( _mediaUpdateInterval );
                 _this.dispatch( "mediapause" );
+                // When the end is near don't pause the trackEvents sequencer
+                _popcornWrapper.currentTime > 0 && _this.sequencerEndIsNear();
               },
               play: function(){
                 _mediaUpdateInterval = setInterval( function(){
@@ -296,6 +298,19 @@
       this.play = function(){
         _popcornWrapper.play();
       };
+
+      this.sequencerEndIsNear = function() {
+        if (Popcorn.instances.length > 0) {
+          var running = Popcorn.instances[0].data.running
+          if (running) {
+            for (var i in running.sequencer) {
+              if (running.sequencer[i].end - _popcornWrapper.currentTime < 1) {
+                return _popcornWrapper.play();
+              }
+            }
+          }
+        }
+      }
 
       this.generatePopcornString = function( callbacks, scripts ){
         var popcornOptions = _popcornOptions || {};

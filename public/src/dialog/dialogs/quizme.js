@@ -612,6 +612,7 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
         $questions.find(".selected").removeClass("selected");
         manager.cleanQuestionEdit("smart");
         questionInput.focus();
+        $(questionInput).fancyAnimate({mode: "add"});
     });
 
     $deleteQues.click(function(ev) {
@@ -733,6 +734,12 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
         answers.splice(anscorrectIndex, 1);
         answers = answers.filter(function(arr) {return arr}); // clean empty answer
         var nameQuiz = $quizzes.find(".selected").text();
+
+        if ($quizzes.find(".selected").length <= 0) {
+            $error.text("You need to select a Quiz or create a new one.");
+            $error.fancyAnimate({mode:"error"}, cleanError);
+            return;
+        }
 
         if ($questions.find(".selected").length > 0) { // It means we just have to update question
             updateQuizTemp(question, answers, answercorrect, typeAns);
@@ -876,11 +883,13 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
         }
     }
     $(window).resize(updateScrollbar);
-
     addScrollbar($quizzes.parents(".scrollbar-container")[0], "quizzesScrollbar");
     addScrollbar($questions.parents(".scrollbar-container")[0], "questionsScrollbar");
     manager.changeTypeAnswer("type-tf");       // by default answer quiz is true-false
-    quizDB.getquizzes(manager.receiveQuizzes); // On start dialog load quizzes
+    $(function() {
+        quizDB.getquizzes(manager.receiveQuizzes); // On start dialog load quizzes
+        console.log("getquizzes_2");
+    });
     
   });
   

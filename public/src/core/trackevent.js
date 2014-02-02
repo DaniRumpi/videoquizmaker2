@@ -55,7 +55,7 @@ define( [ "./logger", "./eventmanager", "./observer", "util/lang", "util/time",
     options = options || {};
 
     var _this = this,
-        _id = "TrackEvent" + getUniqueID(options.popcornOptions.id),
+        _id = "TrackEvent" + getUniqueID(options.id || options.popcornOptions.id),
         _name = options.name || _id,
         _logger = new Logger( _id ),
         _track = null,

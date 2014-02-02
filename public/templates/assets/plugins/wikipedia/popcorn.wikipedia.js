@@ -176,6 +176,7 @@
       _outer.classList.add( "wikipedia-outer-container" );
       _outer.classList.add( options.transition );
       _outer.classList.add( "off" );
+      _outer.style.display = "none";
 
       _outer.style.width = validateDimension( options.width, "100" ) + "%";
       _outer.style.height = validateDimension( options.height, "100" ) + "%";
@@ -207,6 +208,7 @@
 
     end: function( event, options ){
       if ( options._container ) {
+        options._container.style.display = "none";
         options._container.classList.add( "off" );
         options._container.classList.remove( "on" );
       }
@@ -316,14 +318,14 @@
     options:{
       start: {
         elem: "input",
-        type: "number",
-        label: "Start",
+        type: "text",
+        label: "In",
         "units": "seconds"
       },
       end: {
         elem: "input",
-        type: "number",
-        label: "End",
+        type: "text",
+        label: "Out",
         "units": "seconds"
       },
       lang: {

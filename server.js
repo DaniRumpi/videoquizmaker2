@@ -25,8 +25,7 @@ var express = require('express'),
 var templateConfigs = {};
 
 var quizzes = require('./quizzes.json');
-var TrueFalse = {"tf": quizzes['tf']};
-var quizTF = {name: "TrueFalse", data: TrueFalse};
+var quizTutorial = {name: "Tutorial", data: quizzes};
 
 function readTemplateConfig( templateName, templatedPath ) {
   var configPath = templatedPath.replace( '{{templateBase}}', config.dirs.templates + '/' );
@@ -475,21 +474,19 @@ app.get('/api/quizzes', filter.isStorageAvailable, function(req, res) {
     res.json( { error: 'unauthorized' }, 403 );
     return;
   }
-
   Project.findAllQuizzes( email, function( err, docs ) {
-
     if ( err ) {
       res.json( { error: err }, 500 );
       return;
     }
-
     if ( !docs ) {
       res.json( { error: "quiz not found" }, 404 );
       return;
     } else if (isEmpty(docs)) {
-      Project.createQuiz( email, quizTF, function(err, doc) {
+      Project.createQuiz( email, quizTutorial, function(err, doc) {
         if (!err) {
-          docs.push({'id': doc.id, 'name': doc.name})
+          docs.push({'id': doc.id, 'name': doc.name});
+          res.json({ quiz: { 'id': doc.name }}, 200);
         }
       });
     } else {

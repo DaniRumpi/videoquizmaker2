@@ -308,11 +308,14 @@ define( [ "core/eventmanager", "./toggler",
         return a.popcornOptions.start > b.popcornOptions.start;
       },
       // Find when tracks are in the same level at time ("belongs to the same track")
-      belongsToSameSet = function(start, end, offsetEnd) {
-        if (!start || !end) return false;
-        if (!offsetEnd.value) offsetEnd.value = start.end;
-        if (end.start <= offsetEnd.value) {
-          offsetEnd.value = start.end >= end.end? start.end : end.end; // Update offsetEnd
+      belongsToSameSet = function(a, b, offsetEnd) {
+        if (!a || !b) return false;
+        if (!offsetEnd.value) offsetEnd.value = a.end;
+        if (b.end <= offsetEnd.value) {
+          return true;
+        }
+        if (b.start <= offsetEnd.value) {
+          offsetEnd.value = b.end; // New offset
           return true;
         }
         offsetEnd.value = undefined;
@@ -379,12 +382,12 @@ define( [ "core/eventmanager", "./toggler",
     butter.spliceTrackEventBySet = function(te, i) {
       var base = orderedTrackEvents;
       var currSet = butter.orderedTrackEventsSet[te.popcornOptions.setMedia];
-      if (currSet.length === 1) {
+      if (currSet && currSet.length === 1) {
         butter.orderedTrackEventsSet.splice(te.popcornOptions.setMedia, 1);
         for (var j = i; j<base.length; j++) {
           base[j].popcornOptions.setMedia--;
         }
-      } else if (currSet > 1) {
+      } else if (currSet && currSet.length > 1) {
         var index = currSet.indexOf(te);
         currSet.splice( index, 1 );
       }

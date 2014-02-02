@@ -1,13 +1,24 @@
 {
-    "tf": [
+    "multiList": [
         {
-            "ques": "The official language of all the countries in South America is Spanish.",
-            "ans": false,
-            "ansInfo": "This statement is false because of the absolute word all. Spanish is the official language of 9 of the 13 countries in South America. The exceptions are Brazil (Portuguese), French Guiana (French), Guyana (English), and Suriname (Dutch)."
+            "ques": "Can you get this question wrong?",
+            "ansSel": ["Nope", "No way", "Of course not"],
+            "ans": "No"
         },
         {
-            "ques": "Shaking hands with women is acceptable in Indonesia.",
-            "ans": true
+            "ques": "What is the anwser to the Life, Universe and Everything?",
+            "ansSel": ["<m>42</m>"],
+            "ans": "42"
+        },
+        {
+            "ques": "Why did the chicken cross the road?",
+            "ansSel": ["Because she want to", "What is a chicken?", "The chicken would probably not be aware that he was crossing a road as chickens have limited congnitive abilities"],
+            "ans": "To get to the other side"
+        },
+        {
+            "ques": "Get it?",
+            "ansSel": ["Try again", "Go back", "End tutorial"],
+            "ans": "So clear!"
         }
     ]
 }

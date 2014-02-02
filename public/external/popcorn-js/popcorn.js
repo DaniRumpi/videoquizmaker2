@@ -1751,12 +1751,20 @@
         );
       }
     },
+    enableAllTrackEvents: function(that) {
+      var instances = that.data.trackRefs;
+      for (var i in instances) {
+        instances[i].disable === true && !(instances[i].disable = false); // enable all
+      }
+    },
     // Desactive all instance of this branch
     disableAll: function(that, instance, val) {
       // Disable all SubTrackEvents
       if (instance.isSuperTrackEvent) {
         for (var i in instance.subTrackEvents) {
-          that.getTrackEvent( instance.subTrackEvents[i] ).disable = val;
+          if (that.getTrackEvent( instance.subTrackEvents[i] )) {
+            that.getTrackEvent( instance.subTrackEvents[i] ).disable = val;
+          }
         }
       }
       if (instance.rules && instance.rules.length < 1) { // is leaf node
@@ -1785,14 +1793,15 @@
         };
 
         next    = that.getTrackEvent(id);
+        if (!next) return; // Might not exists (happen when the import fails)
         keyrule = instance.rules[id].keyrule;
         rule    = instance.rules[id][keyrule];
         next.disable = true;
 
         if (info && (keyrule === "score" || keyrule === "time")) {
           infoValue = keyrule === "time"? Number(info.time) : Number(info.score);
-          if (rule.value) {
-            rule.value = Number(rule.value);
+          rule.value = Number(rule.value);
+          if (typeof rule.value === "number") {
             if (!rule.condition) {
               rule.condition = "less";
             }
@@ -1886,26 +1895,34 @@
     isRunning: function(obj) {
       var running = false;
       var runningObj = $.extend({}, obj.data.running);
-      Object.keys(runningObj).forEach(function(type) {
+      for (var type in runningObj) {
         if (runningObj[type].length > 0) {
           running = true;
+          break;
         }
-      });
+      }
       return running;
     },
     // Skip to the next Popcorn plugin
     jumpNext: function(instance, time) {
       var currTime = this.currentTime();
-      var tracks   = this.data.trackEvents.byStart;
-      var index    = tracks.indexOf(instance) + 1;
 
       if (!this.isRunning(this)) { // if there're no instances running
+
         if (time) { // Just jump to the params time
           this.currentTime(time);
         }
+
+        var tracks   = this.data.trackEvents.byStart;
+        var index    = tracks.indexOf(instance) + 1;
+
         for (index; index < tracks.length; index++) {
           if (tracks[index] && !tracks[index]._running && !tracks[index].disable) {
-            if (currTime < tracks[index].start) {
+            if (currTime <= tracks[index].start) {
+              if (!tracks[index]._natives) { // enable all
+                this.currentTime( tracks[index].start );
+                return this.enableAllTrackEvents(this);
+              }
               return this.currentTime( tracks[index].start );
             }
           }
@@ -2103,16 +2120,12 @@
       // objects will receive a toString - its otherwise undetectable
       if ( !hasOwn.call( options, "toString" ) ) {
         options.toString = function() {
-          var props = [
-            "start: " + options.start,
-            "end: " + options.end,
-            "id: " + (options.id || options._id)
-          ];
+          var props = [options.id || options._id];
 
           // Matches null and undefined, allows: false, 0, "" and truthy
-          if ( options.target != null ) {
+/*          if ( options.target != null ) {
             props.push( "target: " + options.target );
-          }
+          }*/
 
           return name + " ( " + props.join(", ") + " )";
         };

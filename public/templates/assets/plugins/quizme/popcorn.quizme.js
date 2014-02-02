@@ -6,16 +6,30 @@
     return fallback;
   }
 
-  var TrueFalse = { "tf": [
+  var Tutorial = { "multiList": [
     {
-      "ques": "The official language of all the countries in South America is Spanish.",
-      "ans": false,
+      "ques": "Can you get this question wrong?",
+      "ansSel": ["Nope", "No way", "Of course not"],
+      "ans": "No"
     },
     {
-      "ques": "Shaking hands with women is acceptable in Indonesia.",
-      "ans": true
+      "ques": "What is the anwser to the Life, Universe and Everything?",
+      "ansSel": ["<m>42</m>"],
+      "ans": "42"
+    },
+    {
+      "ques": "Why did the chicken cross the road?",
+      "ansSel": ["Because she want to", "What is a chicken?",
+        "The chicken would probably not be aware that he was crossing a road as chickens have limited congnitive abilities"],
+      "ans": "To get to the other side"
+    },
+    {
+      "ques": "Get it?",
+      "ansSel": ["Try again", "Go back", "End tutorial"],
+      "ans": "So clear!"
     }
   ]};
+  var deafultQuizName = "Tutorial";
 
   var optDefault = {
       title: "Simple statements",
@@ -25,10 +39,11 @@
       random: false,
       fxSpeed: "fast",
       hoverClass: "q-ol-hover",
-      showFeedback: false
+      showFeedback: false,
+      numOfQuizQues: 0,
+      showHTML: false
   };
   var target, gettingQuizzes, _Butter;
-  var GlobalQuiz = {"TrueFalse": TrueFalse};
 
   // We are on Editor
   if (typeof Butter !== "undefined") {
@@ -43,7 +58,7 @@
       options.name,
       "' has no questions</div>"
     ].join("");
-    options._container.appendChild(error);
+    options.$container.append(error);
   }
 
   var updateManifestName = function(manifest, option) {
@@ -72,12 +87,39 @@
     if (options.customFontSize) {
       $elem.css({'font-size': options.customFontSize + "px"});   // change Quiz Font Size
     }
+    if (options.hideHeader) {
+      $elem.find(".q-header-main").css({
+        display: "none"
+      });
+    }
+    else {
+      $elem.find(".q-header-main").css({
+        display: "block"
+      });
+    }
+  }
+
+  // Just work for quizzes which are one type
+  var spliceQuestions = function(options) {
+    var typeQuiz = Object.keys(options.quizJSON[options.name])[0];
+    var questions = options.quizJSON[options.name][typeQuiz];
+    var index = Number(options.indexQuestion);
+    var quizAUX = {};
+    quizAUX[typeQuiz] = questions.slice(index-1, index);
+    return quizAUX;
   }
 
   var createQuiz = function(options) {
     if (!!options.quizJSON) {
       options.$container.find(".error-quiz, .quiz-el").remove();
-      options.$container.jQuizMe(options.quizJSON[options.name], options.optQuiz, options.callback);
+
+      var quizClone;
+      if (Number(options.indexQuestion) > 0) {
+        quizClone = spliceQuestions(options);
+      } else {
+        quizClone = $.extend({}, options.quizJSON[options.name]);
+      }
+      options.$container.jQuizMe(quizClone, options.optQuiz, options.callback);
       // Change Quiz Appearence
       changeQuizCSS(options.$container.find(".quiz-el"), options);
     }
@@ -101,7 +143,7 @@
 
           if (data.json && data.json.error === "unauthorized") {
             errorNotifier(options, "unauthorized");
-            updateManifestName(manifest, "TrueFalse");
+            updateManifestName(manifest, deafultQuizName);
             gettingQuizzes = false;
             return;
           }
@@ -120,7 +162,7 @@
           }
           else {
             errorNotifier(options);
-            updateManifestName(manifest, "TrueFalse");
+            updateManifestName(manifest, deafultQuizName);
           }
           gettingQuizzes = false;
         });
@@ -134,8 +176,9 @@
         updateManifestName(manifest, options.name);
       }
       // Default quiz
-      if (options.name === "TrueFalse" ) {
-        options.quizJSON = {"TrueFalse": TrueFalse};
+      if (options.name === deafultQuizName ) {
+        options.quizJSON = {};
+        options.quizJSON[deafultQuizName] = Tutorial;
         createQuiz(options);
         // update manifest
         updateManifestName(manifest, options.name);
@@ -163,17 +206,9 @@
         },
         name: {
           elem: "select", 
-          options: ["TrueFalse"], 
+          options: ["Tutorial"], 
           label: "Quiz",
-          "default": "TrueFalse"
-        },
-        help: {
-          elem: "input", 
-          type: "text", 
-          label: "Help",
-          optional: true,
-          "default": "You do not need help.",
-          group: "advanced"
+          "default": "Tutorial"
         },
         review: {
           elem: "input",
@@ -189,11 +224,12 @@
           "default": false,
           optional: true
         },
-        intro: {
-          elem: "textarea",
-          label: "Introduction",
-          optional: true,
-          group: "advanced"
+        hideDetails: {
+          elem: "input",
+          type: "checkbox",
+          label: "Hide final details",
+          "default": false,
+          optional: true
         },
         customFontSize: {
           elem: "input",
@@ -201,6 +237,14 @@
           label: "Font Size",
           units: "px",
           "default": "19",
+          group: "style"
+        },
+        hideHeader: {
+          elem: "input",
+          type: "checkbox",
+          label: "Hide Header",
+          "default": false,
+          optional: true,
           group: "style"
         },
         color: {
@@ -253,15 +297,55 @@
           "default": "#000000",
           group: "style"
         },
-        start: {
+        help: {
           elem: "input", 
           type: "text", 
-          label: "In"
+          label: "Help",
+          optional: true,
+          "default": "You do not need help.",
+          group: "advanced"
+        },
+        intro: {
+          elem: "textarea",
+          label: "Introduction",
+          optional: true,
+          group: "advanced"
+        },
+        numOfQuizQues: {
+          elem: "input", 
+          type: "text", 
+          label: "Number of the Questions (0 = all)",
+          optional: true,
+          "default": 0,
+          group: "advanced"
+        },
+        indexQuestion: {
+          elem: "input", 
+          type: "text", 
+          label: "Index of the Question (0 = all)",
+          optional: true,
+          "default": 0,
+          group: "advanced"
+        },
+        showHTML: {
+          elem: "input",
+          type: "checkbox",
+          label: "Show HTML",
+          "default": false,
+          optional: true,
+          group: "advanced"
+        },
+        start: {
+          elem: "input",
+          type: "text",
+          label: "In",
+          "units": "seconds"
         },
         end: {
           elem: "input",
           type: "text",
-          label: "Out"
+          label: "Out",
+          "units": "seconds"
         },
         width: {
           elem: "input",
@@ -360,6 +444,9 @@
       options.optQuiz.help = options.help;
       options.optQuiz.allRandom = options.random;
       options.optQuiz.intro = options.intro;
+      options.optQuiz.numOfQuizQues = options.numOfQuizQues>0? options.numOfQuizQues:undefined;
+      options.optQuiz.hideDetails = options.hideDetails;
+      options.optQuiz.showHTML = options.showHTML;
 
       // Object Callback with functions that jquizme execute when finish
       options.callback = {
@@ -372,7 +459,7 @@
       options.$container = $(options._container);
 
       if (!options.name) {
-        options.name = "TrueFalse";
+        options.name = deafultQuizName;
       }
       getQuiz(this, options, manifest);
     },

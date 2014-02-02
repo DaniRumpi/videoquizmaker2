@@ -253,6 +253,7 @@ window.Butter = {
             });
 
             playWhenReady = !_currentMedia.paused;
+            
             _currentMedia.url = "#t=," + end;
           } else {
             addEvent();

@@ -231,7 +231,8 @@
 		showWrongAns: false,  // If answer is wrong, then show the user's wrong answer after each question.
 		statusUpdate: false, // Sends a status Update. Refer to function sendStatus.
 		quizType: "fillInTheBlank", // This is only need if you send in an array and not a object with a defined quiz type.
-		title: 'jQuizMe' // title displayed for quiz.
+		title: 'Quiz', // title displayed for quiz.
+		hideDetails: false
 	};
 		
 	$.fn.jQuizMe = function( wordList, options, callback, userLang ){
@@ -554,7 +555,6 @@
 			},
 			getUserStatDetailsForDisplay = function(){
 				var stopTimerStr = stopTimer();
-				console.log("stopTimer", stopTimerStr);
 				return [
 						(lang.stats.right + ": " + stats.numOfRight), 
 						(lang.stats.wrong + ": " + stats.numOfWrong),
@@ -610,6 +610,10 @@
 					}
 					deleteQuiz();
 				});
+				if (settings.hideDetails) {
+					$( ".q-del-btn", currQuiz).click();
+					return;
+				}
 				$( ".q-help, .q-check-btn, .q-prob, .q-intro, .q-ans", currQuiz).hide();
 				if( settings.review ){
 					setupReview();

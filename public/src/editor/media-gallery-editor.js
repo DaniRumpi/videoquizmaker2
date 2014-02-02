@@ -66,7 +66,7 @@ define( [ "util/lang", "util/uri", "util/xhr", "util/keys", "util/mediatypes", "
 
   function resetInput() {
     _urlInput.value = "";
-    _searchInput.value = "";
+    //_searchInput.value = "";
 
     clearTimeout( _mediaLoadTimeout );
     clearTimeout( _cancelSpinner );
@@ -360,7 +360,7 @@ define( [ "util/lang", "util/uri", "util/xhr", "util/keys", "util/mediatypes", "
     data.source = url;
     data.type = "sequencer";
     _mediaLoadTimeout = setTimeout( function() {
-      _errorMessage.innerHTML = TIMEOUT_ERROR;
+      _errorMessage.innerHTML = "Your media source is taking too long to load";
       _errorMessage.classList.remove( "hidden" );
       _addMediaPanel.classList.add( "invalid-field" );
     }, MEDIA_LOAD_TIMEOUT );

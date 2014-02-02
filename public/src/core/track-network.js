@@ -16,6 +16,7 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 			_scrollLeft = 0,
 			_scrollTop = 0,
 			drawing = false,
+			firstRun = true,
 			setMediaDragging,
 			setMediaResizing,
 			trackNetwork = this;
@@ -89,7 +90,11 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 		this.calculateLines = function(evType, evTrack) {
 			if (!this.createCanvas()) return;
 			var tracks = app.orderedTrackEventsSet,
-				tempTracksIDs, drawn, setMedia, fromSetMedia;
+				tempTracksIDs,
+				updateEndID,
+				drawn,
+				setMedia,
+				fromSetMedia;
 
 			// Remove all lines when is trackeventremoved
 			if (evType === "trackeventremoved" && !!evTrack) { //evTrack are selectedTrackevents
@@ -105,17 +110,18 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 			}
 
 			// If automatic lines is true just redraw manual lines
-			if (app.project.automaticLines !== "true") {
+			if (app.project.automaticLines !== "true" && !firstRun) {
 				this.updateLinesOfLayer();
 				if (tracks.length > 0) {
 					layer.draw();
 				}
+				firstRun = false;
 				return;
 			}
 
 			// Update just the evTrack's set
 			if (evType === "trackeventupdated" && !!evTrack) {
-				this.updateLinesToEnd(evTrack.id);
+				updateEndID = evTrack.id // this.updateLinesToEnd(evTrack.id);
 				setMedia = evTrack.popcornOptions.setMedia;
 				fromSetMedia = setMedia;
 				if (setMediaResizing < fromSetMedia) {
@@ -132,7 +138,6 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 				}
 			}
 			else if (evType === "pasteTrackEvents" && app.selectedEvents.length > 0) {
-				this.updateLinesOfLayer();
 				// Update until the last selected
 				setMedia = app.sortedSelectedEvents[0].popcornOptions.setMedia;
 				// Update from first selected TE
@@ -143,7 +148,7 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 			}
 			else if (evType === "dropfinished" && !!app.sortedSelectedEvents.length > 0) { // Only selected Events might be dropped
 				var selected = app.sortedSelectedEvents;
-				this.updateLinesToEnd(selected[selected.length-1].id);
+				updateEndID = selected[selected.length-1].id //this.updateLinesToEnd(selected[selected.length-1].id);
 
 				fromSetMedia = selected[selected.length-1].popcornOptions.setMedia;
 				setMedia = selected[0].popcornOptions.setMedia;
@@ -224,12 +229,14 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 						drawn = false;
 						for (var l in tracks[j]) {
 							// Then draw line between tracks in the same layer
-							if (tracks[i][k].track.id === tracks[j][l].track.id) {
-								if (this.drawLine(tracks[i][k], tracks[j][l])) {
-									drawn = true;
+							if (tracks[i][k].track && tracks[i][k].track) {
+								if (tracks[i][k].track.id === tracks[j][l].track.id) {
+									if (this.drawLine(tracks[i][k], tracks[j][l])) {
+										drawn = true;
+									}
+									tempTracksIDs[tracks[j][l].id] = true; // This means is not a old lines
+									break; // Just one line
 								}
-								tempTracksIDs[tracks[j][l].id] = true; // This means is not a old lines
-								break; // Just one line
 							}
 						}
 						if (!drawn || tracks[i][k].type === "quizme") {
@@ -238,7 +245,13 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 					}
 				}
 			}
+
 			if (tracks.length > 0) {
+				if (evType === "pasteTrackEvents" || evType === "dropfinished") {
+					this.updateLinesOfLayer();
+				} else if (evType === "trackeventupdated") {
+					this.updateLinesToEnd(updateEndID);
+				}
 				layer.draw();
 			}
 		}
@@ -360,9 +373,15 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 		// Draw Lines between two points
 		this.drawLine = function(start, end, options) {
 			if ( options === undefined ) options = {};
-			if ( !options.manual && start.lines.isDeletedLine(end.id) ) {
-				return false; // Line was removed
+			if (!options.manual) {
+				if ( start.lines.isDeletedLine(end.id) ) {
+					return false; // Line was removed
+				}
+				else if (start.type !== "quizme") {
+					return false;
+				}
 			}
+			
 			var points = this.calculatePoints(start, end, options.backward);
 			if (!points) {
 				return false;
@@ -588,12 +607,14 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 			if (obj.type !== "quizme") {
 				var lineID,
 					allLines = obj.lines.allLines;
-				Object.keys(obj.lines.allLines).forEach(function(trackID) {
+				Object.keys(allLines).forEach(function(trackID) {
 					if (obj.lines.isLine(trackID) && id !== trackID) {
 						lineID = allLines[trackID].line._id;
 						obj.lines.removeLine(trackID, true); // Remove line from TrackEvent
 						layer.lines[lineID].remove(); // Remove line from layer children
-						trackNetwork.removeLineInLayer(line); // Delete from layer
+						if (allLines[trackID] && allLines[trackID].line) {
+							trackNetwork.removeLineInLayer(allLines[trackID].line); // Delete from layer
+						}
 						update = true;
 					}
 				});
@@ -699,8 +720,8 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 			aux.push( points[2] );
 			aux.push( points[1] + trackTop );
 			// point 5
-			aux.push( points[2] );
-			aux.push( points[3] );
+			aux.push( points[2] /*- _scrollLeft*/);
+			aux.push( points[3] /*+ _scrollTop*/);
 
 			return aux;
 		}
@@ -743,8 +764,8 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 				layer.add(lineBack);
 				//start point and end point are the same
 				var points = [
-					$that.parent().position().left + $that.position().left,
-					$wrap.position().top + $that.outerHeight()/2 + $that.position().top +1.5
+					$that.parent().position().left + $that.position().left - _scrollLeft,
+					$wrap.position().top + $that.outerHeight()/2 + $that.position().top +1.5 + _scrollTop
 				];
 				points.push(points[0]);
 				points.push(points[1]);
@@ -779,8 +800,8 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 				if ($src.parents(".butter-track-event").length > 0 || $src.hasClass("butter-track-event")) {
 					$parent = $src.parents(".butter-track-event");
 					if ($src.hasClass("butter-track-event")) $parent = $src;
-					lineMouse.getPoints()[1].x = $parent.position().left;
-					lineMouse.getPoints()[1].y = $parent.height()/2 + $parent.parent().position().top;
+					lineMouse.getPoints()[1].x = $parent.position().left - _scrollLeft;
+					lineMouse.getPoints()[1].y = $parent.height()/2 + $parent.parent().position().top  + _scrollTop;
 				} else {
 					if (e.offsetX) {
 						lineMouse.getPoints()[1].x = e.offsetX;
