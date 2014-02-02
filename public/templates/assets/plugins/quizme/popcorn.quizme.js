@@ -126,12 +126,15 @@
   }
 
   var getQuiz = function(that, options, manifest) {
+    if (typeof Butter !== "undefined") {
+      _Butter = Butter;
+    }
 
     // if we are in butter then look for new quizzes in QuizOptions
     if (!!_Butter) {
       if (!!_Butter.QuizOptions && !!_Butter.QuizOptions[options.name]) {
         options.quizJSON = {};
-        options.quizJSON[options.name] = _Butter.QuizOptions[options.name];
+        options.quizJSON[options.name] = $.extend({}, _Butter.QuizOptions[options.name]);
         createQuiz(options);
         // Update manifest
         manifest.name.options = Object.keys(_Butter.QuizOptions);
@@ -153,7 +156,7 @@
             _Butter.QuizOptions[data.json.all[n].name] = JSON.parse(data.json.all[n].data);
           }
           options.quizJSON = {};
-          options.quizJSON[options.name] = _Butter.QuizOptions[options.name];
+          options.quizJSON[options.name] = $.extend({}, _Butter.QuizOptions[options.name]);
 
           if (options.quizJSON && options.quizJSON[options.name]) {
             createQuiz(options);

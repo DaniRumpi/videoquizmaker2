@@ -886,10 +886,7 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
     addScrollbar($quizzes.parents(".scrollbar-container")[0], "quizzesScrollbar");
     addScrollbar($questions.parents(".scrollbar-container")[0], "questionsScrollbar");
     manager.changeTypeAnswer("type-tf");       // by default answer quiz is true-false
-    $(function() {
-        quizDB.getquizzes(manager.receiveQuizzes); // On start dialog load quizzes
-        console.log("getquizzes_2");
-    });
+    quizDB.getquizzes(manager.receiveQuizzes); // On start dialog load quizzes
     
   });
   
