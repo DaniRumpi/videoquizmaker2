@@ -486,7 +486,9 @@ app.get('/api/quizzes', filter.isStorageAvailable, function(req, res) {
       Project.createQuiz( email, quizTutorial, function(err, doc) {
         if (!err) {
           docs.push({'id': doc.id, 'name': doc.name});
-          res.json({ quiz: { 'id': doc.name }}, 200);
+          var aux = {quiz: {}};
+          aux.quiz[doc.id] = doc.name;
+          res.json(aux, 200);
         }
       });
     } else {
