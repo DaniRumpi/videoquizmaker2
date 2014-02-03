@@ -213,7 +213,7 @@
      */
     _setup : function( options ) {
       var superParent = this.animate(options);
-      if (superParent) {
+      if (superParent && superParent._container) {
         options.idType = getUniqueID(options, superParent);
         updateRules(superParent, options);
         superParent._container.classList.add(options.idType);
@@ -234,7 +234,7 @@
     start: function( event, options ) {
       // this.function();
       var superParent = this.animate(options);
-      if (superParent) {
+      if (superParent && superParent._container) {
         if (!options.idType) {
           options.idType = getUniqueID(options, superParent);
         }
