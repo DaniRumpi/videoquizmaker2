@@ -521,6 +521,17 @@ app.get('/api/quizzes/all', filter.isStorageAvailable, function(req, res) {
       res.json( { error: "quizzes not found" }, 404 );
       return;
     }
+    else if (isEmpty(docs)) {
+      Project.createQuiz( email, quizTutorial, function(err, doc) {
+        if (!err) {
+          docs.push({'id': doc.id, 'name': doc.name});
+          var aux = {quiz: {}};
+          aux.quiz[doc.id] = doc.name;
+          res.json(aux, 200);
+        }
+      });
+      return;
+    }
 
     res.json({ all: docs }, 200);
     return;
