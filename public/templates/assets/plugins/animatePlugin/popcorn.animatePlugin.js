@@ -2,62 +2,51 @@
 
 (function ( Popcorn ) {
 
-  var sheet = (function() {
-    // Create the <style> tag
-    var style = document.createElement("style");
-
-    // Add a media (and/or media query) here if you'd like!
-    // style.setAttribute("media", "screen")
-    // style.setAttribute("media", "@media only screen and (max-width : 1024px)")
-
-    // WebKit hack :(
-    style.appendChild(document.createTextNode(""));
-
-    // Add the <style> element to the page
-    document.head.appendChild(style);
-
-    return style.sheet;
-  })();
+  if (!sheetList) {
+    var sheetList = {};
+  }
 
   var createSheet = (function() {
     // Create the <style> tag
     var style = document.createElement("style");
-
     // Add a media (and/or media query) here if you'd like!
     // style.setAttribute("media", "screen")
     // style.setAttribute("media", "@media only screen and (max-width : 1024px)")
-
     // WebKit hack :(
+    style.type = "text/css";
     style.appendChild(document.createTextNode(""));
+    style.innerHTML = "";
 
     // Add the <style> element to the page
     document.head.appendChild(style);
 
-    return style.sheet;
+    return style;
   });
-  function addCSSRule(sheet, selector, rules, index) {
-    if (!sheet) {
-      sheet = createSheet();
-    }
-    if(sheet.insertRule) {
-      sheet.insertRule(selector + "{" + rules + "}", index);
-    }
-    else {
-      sheet.addRule(selector, rules, index);
-    }
+
+  function createTextNode(text) {
+    return document.createTextNode(text);
   }
-  function removeSheet() {
-    if (sheet) {
+  function addCSSRule(id, textNode) {
+    if (!sheetList[id]) {
+      return;
+    }
+    sheetList[id].appendChild(textNode);
+  }
+  function removeSheet(id) {
+    if (sheetList[id]) {
       try {
-        document.head.removeChild(sheet.ownerNode);
+        document.head.removeChild(sheetList[id]);
+        delete sheetList[id];
       } catch(Ex) {}
     }
   }
-  function restartSheet() {
-    if (sheet) {
-      removeSheet();
+  function restartSheet(id) {
+    if (sheetList[id]) {
+      removeSheet(id);
     }
-    sheet = createSheet();
+    if (sheetList) {
+      sheetList[id] = createSheet();
+    }
   }
 
   function validateDimension( value, fallback ) {
@@ -69,58 +58,51 @@
   var getUniqueID = function(instance, parent) {
     return ("animate-" + instance.id+"-"+parent.id).toLowerCase();
   }
-  var getUniqueParentID = function(parent) {
-    return ("animate-" +parent.id).toLowerCase();
-  }
 
-  var updateBounds = function( instance, options ) {
-    var id = "#"+options.idType+"."+options.classType,
-        width = "width:"+validateDimension( options.width, "100" ) + "% !important",
-        height = "height:"+validateDimension( options.height, "100" ) + "% !important",
-        top = "top:"+validateDimension( options.top, "0" ) + "% !important",
-        left = "left:"+validateDimension( options.left, "0" ) + "%!important";
-
-    options.width   && addCSSRule(sheet, id, width);
-    options.height  && addCSSRule(sheet, id, height);
-    options.top     && addCSSRule(sheet, id, top);
-    options.left    && addCSSRule(sheet, id, left);
-    !options.width  && addCSSRule(sheet, id, "");
-    !options.height && addCSSRule(sheet, id, "");
-    !options.top    && addCSSRule(sheet, id, "");
-    !options.left   && addCSSRule(sheet, id, "");
+  var updateRules = function( instance, options ) {
+    var id = "."+options.idType,
+        width = "width:"+validateDimension( options.width, "100" ) + "% !important;",
+        height = "height:"+validateDimension( options.height, "100" ) + "% !important;",
+        top = "top:"+validateDimension( options.top, "0" ) + "% !important;",
+        left = "left:"+validateDimension( options.left, "0" ) + "%!important;",
+        listNodes = [];
 
     if (options.rotate) {
       var rotate = validateDimension(options.rotate, "0")
-      var rotateSet = [
+      listNodes = [
         "transform:rotate("+rotate+"deg) !important;",
         "-ms-transform:rotate("+rotate+"deg) !important;",
         "-moz-transform:rotate("+rotate+"deg) !important;",
         "-webkit-transform:rotate("+rotate+"deg) !important;"
       ];
-      addCSSRule(sheet, id, rotateSet.join(""));
     }
-  }
+    options.width  && listNodes.push(width);
+    options.height && listNodes.push(height);
+    options.top    && listNodes.push(top);
+    options.left   && listNodes.push(left);
 
-  var updateAnimation = function( instance, options ) {
     if (options.animation && options.animation !== "nothing") {
-      var id = "#"+options.idType+"."+options.classType,
-          duration = validateDimension( options.duration, 1 ),
+      var duration = validateDimension( options.duration, 1 ),
           iterationCount = validateDimension( options.iterationCount, 1 );
       if (!iterationCount || iterationCount === 0 || iterationCount === "0") {
-        var iterationCount = "infinite";
+        iterationCount = "infinite";
       }
 
-      var animationSet = [
-        "-webkit-animation-duration: "+duration+"s;",
-        "animation-duration: "+duration+"s;",
-        "-webkit-animation-fill-mode: both;",
-        "animation-fill-mode: both;",
-        "-webkit-animation-name: "+options.animation+";",
-        "animation-name: "+options.animation+";",
-        "-webkit-animation-iteration-count: "+iterationCount+";",
-        "animation-iteration-count: "+iterationCount+";"
-      ];
-      addCSSRule(sheet, id, animationSet.join(""));
+      listNodes.push("-webkit-animation-duration: "+duration+"s;");
+      listNodes.push("animation-duration: "+duration+"s;");
+      listNodes.push("-webkit-animation-fill-mode: both;");
+      listNodes.push("animation-fill-mode: both;");
+      listNodes.push("-webkit-animation-name: "+options.animation+";");
+      listNodes.push("animation-name: "+options.animation+";");
+      listNodes.push("-webkit-animation-iteration-count: "+iterationCount+";");
+      listNodes.push("animation-iteration-count: "+iterationCount+";)");
+    }
+
+    if (listNodes.length > 0) {
+      restartSheet(options.id);
+      var textNode = id+"{"+listNodes.join("")+"}";
+      textNode = createTextNode(textNode);
+      addCSSRule(options.id, textNode);
     }
   }
   
@@ -232,20 +214,16 @@
     _setup : function( options ) {
       var superParent = this.animate(options);
       if (superParent) {
-        options.idType = getUniqueParentID(superParent);
-        options.classType = getUniqueID(options, superParent);
-        restartSheet();
+        options.idType = getUniqueID(options, superParent);
+        updateRules(superParent, options);
+        superParent._container.classList.add(options.idType);
 
         if (options._running) {
-          updateAnimation(superParent, options.idType);
+          superParent._container.style.display = "none";
+          setTimeout(function(){
+            superParent._container.style.display = "block";
+          }, 1);
         }
-        superParent._container.id = options.idType;
-        superParent._container.classList.add(options.classType);
-        superParent._container.style.display = "none";
-        setTimeout(function(){
-          superParent._container.style.display = "block";
-        }, 1);
-
       }
     },
     /**
@@ -256,17 +234,16 @@
     start: function( event, options ) {
       // this.function();
       var superParent = this.animate(options);
-      if (superParent && !options.idType) {
-        options.idType = getUniqueParentID(superParent);
-        options.classType = getUniqueID(options, superParent);
+      if (superParent) {
+        if (!options.idType) {
+          options.idType = getUniqueID(options, superParent);
+        }
+        if (superParent._container) {
+          superParent._container.classList.add(options.idType);
+        }
+        updateRules(superParent, options);
       }
-      if (superParent && superParent._container) {
-        restartSheet();
-        updateBounds(superParent, options);
-        updateAnimation(superParent, options);
-        superParent._container.id = options.idType;
-        superParent._container.classList.add(options.classType);
-      }
+      
     },
     /**
      * The end function will be executed when the currentTime 
@@ -276,15 +253,15 @@
     end: function( event, options ) {
       var superParent = this.animate(options);
       if (superParent && superParent._container) {
-        superParent._container.classList.remove(options.classType);
-        removeSheet();
+        superParent._container.classList.remove(options.idType);
+        removeSheet(options.id);
       }
     },
     _teardown: function( options ) {
       var superParent = this.animate(options);
       if (superParent && superParent._container) {
-        superParent._container.classList.remove(options.classType);
-        removeSheet();
+        superParent._container.classList.remove(options.idType);
+        removeSheet(options.id);
       }
     }
   });
