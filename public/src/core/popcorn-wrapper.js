@@ -100,6 +100,12 @@ define( [
             popcornEvent.isSuperTrackEvent = newOptions.isSuperTrackEvent;
           }
         }
+        if (newOptions.isSubTrackEvent !== undefined) {
+          if (popcornEvent.isSubTrackEvent !== newOptions.isSubTrackEvent) {
+            popcornEvent.isSubTrackEvent = newOptions.isSubTrackEvent;
+            popcornEvent.superParent = newOptions.superParent;
+          }
+        }
         if (newOptions.subTrackEvents) {
           popcornEvent.subTrackEvents = newOptions.subTrackEvents;
         }

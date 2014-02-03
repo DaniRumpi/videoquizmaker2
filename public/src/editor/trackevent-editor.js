@@ -567,6 +567,7 @@ console.log("default", extendObject.defaultLayouts);
       }
 
       isNumber = manifestType === "number" ? true : false;
+      isAnimate = trackEvent.type === "animatePlugin";
 
       function validateNumber( val ) {
         var popcornOptions = trackEvent.popcornOptions;
@@ -574,6 +575,15 @@ console.log("default", extendObject.defaultLayouts);
         // Not so pretty looking workaround for Firefox not implementing input type=number
         if ( isNaN( val ) || val === "" ) {
           val = popcornOptions[ propertyName ];
+        }
+        return val;
+      }
+      function validateEmptyNumber( val ) {
+        // Not so pretty looking workaround for Firefox not implementing input type=number
+        if ( val === "" || val === undefined ) {
+          val = undefined;
+        } else {
+          val = validateNumber( val );
         }
         return val;
       }
@@ -588,7 +598,10 @@ console.log("default", extendObject.defaultLayouts);
         } else {
           var updateOptions = {};
 
-          if ( isNumber ) {
+          if ( isAnimate ) {
+            validateEmptyNumber( val );
+          }
+          else if ( isNumber ) {
             val = validateNumber( val );
           }
 
@@ -608,7 +621,10 @@ console.log("default", extendObject.defaultLayouts);
           if ( !e.shiftKey ) {
             e.preventDefault();
 
-            if ( isNumber ) {
+            if ( isAnimate ) {
+              validateEmptyNumber( val );
+            }
+            else if ( isNumber ) {
               val = validateNumber( val );
             }
 
@@ -633,7 +649,11 @@ console.log("default", extendObject.defaultLayouts);
 
             ignoreBlur = true;
 
-            val = validateNumber( val );
+            if (isAnimate) {
+              val = validateEmptyNumber(val);
+            } else {
+              val = validateNumber( val );
+            }
 
             updateOptions[ propertyName ] = val;
             updateTrackEvent( trackEvent, callback, updateOptions );
@@ -725,7 +745,6 @@ console.log("default", extendObject.defaultLayouts);
       if ( manifestEntry.type === "range" ) {
         propertyArchetypeSelector += ".range";
       }
-
       propertyArchetype = __defaultLayouts.querySelector( propertyArchetypeSelector ).cloneNode( true );
 
       // If the manifestEntry was specified to be hidden bail early
@@ -988,6 +1007,10 @@ console.log("default", extendObject.defaultLayouts);
         $(basicContainer).children(":not(.start-end)").remove();
         advancedContainer.innerHTML = "";
         styleContainer.innerHTML = "";
+      } else if (options.trackEvent.type === "animatePlugin") {
+        $(basicContainer).find(".start-end").filter(":not(:first)").remove();
+        $(basicContainer).children(":not(.start-end)").remove();
+        $(advancedContainer).children(":not(.animation-fieldset)").remove();
       }
 
       for ( i = 0, l = manifestKeys.length; i < l; ++i ) {

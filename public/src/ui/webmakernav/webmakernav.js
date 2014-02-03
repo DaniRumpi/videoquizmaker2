@@ -30,8 +30,8 @@ define( [ "util/lang", "text!./webmakernav.html" ],
         username = root.querySelector( ".user-name" ),
         usernameInner = root.querySelector( ".user-name-container" ),
         usernameContainer= root.querySelector( ".user" ),
-        primary = root.querySelector( ".primary" ),
-        tabContainer = root.querySelector( ".webmaker-tabs" ),
+        //primary = root.querySelector( ".primary" ),
+        //tabContainer = root.querySelector( ".webmaker-tabs" ),
         feedbackCallback,
         onLogin,
         onLogout,
@@ -53,36 +53,6 @@ define( [ "util/lang", "text!./webmakernav.html" ],
     feedbackCallback = options.feedbackCallback;
     onLogin = options.onLogin || NULL_FUNCTION;
     onLogout = options.onLogout || NULL_FUNCTION;
-
-    webmakerTabSetup = function( e ) {
-      var currentActiveBtn = primary.querySelector( "." + BTN_ACTIVE_CLASS ),
-          currentActiveTab = tabContainer.querySelector( "." + TAB_ACTIVE_CLASS ),
-          el = e.target,
-          tabName,
-          tab;
-
-      tabName = el.getAttribute( "data-tab" );
-      tab = tabContainer.querySelector( "." + TAB_PREFIX + tabName );
-
-      if ( !tab ) {
-        return;
-      }
-      if ( currentActiveBtn ) {
-        currentActiveBtn.classList.remove( BTN_ACTIVE_CLASS );
-      }
-      if ( currentActiveTab === tab ) {
-        currentActiveTab.classList.remove( TAB_ACTIVE_CLASS );
-        document.body.classList.remove( EXPANDED_CLASS );
-        return;
-      }
-      else if ( currentActiveTab ) {
-        currentActiveTab.classList.remove( TAB_ACTIVE_CLASS );
-      }
-
-      document.body.classList.add( EXPANDED_CLASS );
-      tab.classList.add( TAB_ACTIVE_CLASS );
-      el.classList.add( BTN_ACTIVE_CLASS );
-    };
 
     userMenuSetup = function() {
       userMenu.addEventListener( "click", function( e ) {
@@ -106,7 +76,7 @@ define( [ "util/lang", "text!./webmakernav.html" ],
     feedbackBtn.addEventListener( "click", feedbackCallback, false );
     loginBtn.addEventListener( "click", onLogin, false );
     logoutBtn.addEventListener( "click", onLogout, false );
-    primary.addEventListener( "click", webmakerTabSetup, false );
+    //primary.addEventListener( "click", webmakerTabSetup, false );
 
     // Default view
     this.views.logout();

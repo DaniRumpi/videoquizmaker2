@@ -124,6 +124,11 @@ define( [ "core/eventmanager" ],
       } else {
         _this.removeAttrElement(_superTrackEvent, "sub-track-event");
       }
+      // setPopcornTrackEvent
+      _superTrackEvent.update({
+        isSubTrackEvent: val,
+        superParent: _parent? _parent.id : undefined
+      });
     };
     this.isSubTrackEventOf = function(parent) {
       if (!_parent) {

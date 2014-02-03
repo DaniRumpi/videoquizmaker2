@@ -60,6 +60,11 @@
         "icon": "{{baseDir}}templates/assets/plugins/pausePlugin/pause-icon.png"
       },
       {
+        "type": "animatePlugin",
+        "displayName": "Animate",
+        "icon": "{{baseDir}}templates/assets/plugins/animatePlugin/animatePlugin-icon.png"
+      },
+      {
         "type": "sequencer",
         "hidden": true,
         "icon": "{{baseDir}}resources/icons/media.png"

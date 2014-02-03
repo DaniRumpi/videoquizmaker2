@@ -69,6 +69,42 @@
     padding: 20px;
   }
 
+  /*SVG*/
+  svg {
+    position: absolute !important;
+    height: 30%;
+    bottom: 0;
+  }
+  @-webkit-keyframes polygon {
+    0% {
+      stroke-dasharray:0 300;
+    }
+    100% {
+      stroke-dasharray:300 0;
+    }
+  }
+  @keyframes polygon {
+    0% {
+      stroke-dasharray:0 300;
+    }
+    100% {
+      stroke-dasharray:300 0;
+    }
+  }
+  polygon {
+    stroke-width: 1;
+    fill: transparent;
+    stroke: #AAA; 
+    stroke-miterlimit: 10; 
+  }
+  polyline, line {
+    stroke: #AAA;
+  }
+
+  circle {
+    fill: #AAA;
+  }
+
 }
 
 /* Lists */
@@ -201,21 +237,23 @@
     color: white;
   }
   label.import-quiz, label.export-quiz {
+    padding: 10px 0;
+    position: absolute;
     cursor: pointer;
     display: inline;
     &:hover {
       font-weight: bold;
     }
   }
+  .space-unused {
+    color: rgba(0,0,0,0);
+  }
   #import-quiz {
     position: absolute;
     left: -9999px;
   }
-  #export-quiz {
-    position: absolute;
-    left: -9999px;
-  }
   .error-quizmanager {
+    padding: 10px 0;
     float: right;
     text-shadow: 0px 0px 1px rgba(255,0,0,.6);
   }

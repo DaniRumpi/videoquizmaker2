@@ -243,12 +243,15 @@
 .controls-right div {
   background: #9EAFBA url( "../resources/controls/controls_icons.png" ) no-repeat;
   margin-top: 6px;
-  margin-left: 6px;
+  margin-left: 18px;
   width: 28px;
   height: 28px;
   border-radius: 3px;
   float: left;
   cursor: pointer;
+  &#controls-fullscreen {
+    margin-right: 16px;
+  }
 }
 
 .controls-right div:hover {

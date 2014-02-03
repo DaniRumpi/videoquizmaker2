@@ -269,6 +269,11 @@ define( [ "./logger", "./eventmanager", "./observer", "util/lang", "util/time",
               _popcornOptions.subTrackEvents = updateOptions.subTrackEvents;
               preventUpdate = false;
             }
+            if (updateOptions.isSubTrackEvent !== undefined) {
+              _popcornOptions.isSubTrackEvent = updateOptions.isSubTrackEvent;
+              _popcornOptions.superParent = updateOptions.superParent;
+              preventUpdate = false;
+            }
             // enable options
             if (updateOptions.disable !== undefined) {
               _popcornOptions.disable = updateOptions.disable;

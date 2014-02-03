@@ -1950,6 +1950,11 @@
           callback(data);
         }
       });
+    },
+    animate: function(instance) {
+      if (instance.isSubTrackEvent && instance.superParent) {
+        return this.getTrackEvent( instance.superParent );
+      }
     }
     
   });

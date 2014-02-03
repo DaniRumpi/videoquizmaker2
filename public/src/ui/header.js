@@ -20,6 +20,7 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
         _projectMenu = _rootElement.querySelector( ".butter-project-menu" ),
         _projectMenuControl = _rootElement.querySelector( ".butter-project-menu-control" ),
         _projectMenuList = _projectMenu.querySelector( ".butter-btn-menu" ),
+        _logoBtn = _rootElement.querySelector( ".butter-logo" ),
         _quizmanagerBtn = _rootElement.querySelector( ".quizmanager-btn" ),
         //_tabzilla = _rootElement.querySelector( "#tabzilla" ),
         _noProjectNameToolTip,
@@ -41,6 +42,10 @@ define([ "dialog/dialog", "util/lang", "text!layouts/header.html", "ui/user-data
     // _tabzilla.addEventListener( "click", function() {
     //   document.body.classList.toggle( "tabzilla-open" );
     // }, false );
+
+    _logoBtn.addEventListener("click", function() {
+      document.location.href="/";
+    });
 
     function getquizzesQuizDB(callback) {
       XHR.get("/api/quizzes/all", callback);
