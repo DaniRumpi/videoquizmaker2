@@ -45,9 +45,7 @@ window.Butter = {
   ],
 
   UA_WARNING_TEXT = "Your web browser may lack some functionality expected" +
-    " by Popcorn Maker to function properly. Please upgrade your browser or" +
-    " <a href=\"https://webmademovies.lighthouseapp.com/projects/65733-popcorn-maker\">" +
-    "file a bug</a> to find out why your browser isn't fully supported. Click " +
+    " by Videoquiz Maker to function properly. Click " +
     "<a href=\"#\" class=\"close-button\">here</a> to remove this warning.";
 
   var require = requirejs.config({

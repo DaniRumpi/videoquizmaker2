@@ -79,7 +79,7 @@
   Popcorn.plugin( "popup", {
     manifest: {
       about: {
-        name: "Popcorn Maker Popup Plugin",
+        name: "Videoquiz Maker Popup Plugin",
         version: "0.1",
         author: "Kate Hudson @k88hudson, Matthew Schranz @mjschranz, Brian Chirls @bchirls",
         website: "http://github.com/k88hudson, http://github.com/mjschranz, https://github.com/brianchirls/"

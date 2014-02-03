@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <script src="//cdn.optimizely.com/js/206878104.js"></script>
-  <title>Popcorn Maker</title>
+  <title>Videoquiz Maker</title>
   <link rel="stylesheet" href="media/css/sandstone.css">
   <link rel="stylesheet" href="/css/butter.ui.css">
   <link href="https://mozorg.cdn.mozilla.net/media/css/tabzilla-min.css" rel="stylesheet">
@@ -24,14 +24,14 @@
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
     })();
   </script>
-  <meta property="og:title" content="Popcorn Maker">
+  <meta property="og:title" content="Videoquiz Maker">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://popcorn.webmaker.org">
   <meta property="og:image" content="https://popcorn.webmaker.org/resources/icons/fb-logo.png">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="200">
   <meta property="og:image:height" content="200">
-  <meta property="og:description" content="Video beyond the box. Popcorn Maker makes it easy to enhance, remix and share web video.">
+  <meta property="og:description" content="Video beyond the box. Videoquiz Maker makes it easy to enhance, remix and share web video.">
   <meta property="og:site_name" content="Mozilla Webmaker">
 </head>
 <body id="home">
@@ -53,7 +53,7 @@
             <div class="span3">
               <h2>Video beyond the box</h2>
               <p>
-                Popcorn Maker makes it easy to enhance, remix and share web video. Use your web browser to combine video and audio with content from the rest of the web — from text, links and maps to pictures and live feeds.
+                Videoquiz Maker makes it easy to enhance, remix and share web video. Use your web browser to combine video and audio with content from the rest of the web — from text, links and maps to pictures and live feeds.
               </p>
               <p class="intro-bar">
                 <a class="butter-btn btn-green start" href="/templates/basic">Start a project</a> <em>or</em> <a class="butter-btn btn-light start" href="/templates/basic/?savedDataUrl=tutorial.json">Take a tutorial</a>
@@ -114,7 +114,7 @@
                 </div>
                <div class="caption">
                   <p class="byline">by Wikihow</p>
-                   <p>See how Popcorn Maker can make instructional videos pop in this step-by-step guide.</p>
+                   <p>See how Videoquiz Maker can make instructional videos pop in this step-by-step guide.</p>
                </div>
               </div>
 
@@ -140,7 +140,7 @@
                 </div>
                 <div class="caption">
                   <p class="byline">by MAKE magazine</p>
-                   <p>Colin Cunningham helps you make a "breadboard" circuit board - Popcorn Maker gives you links, instructions, and a deeper dive.</p>
+                   <p>Colin Cunningham helps you make a "breadboard" circuit board - Videoquiz Maker gives you links, instructions, and a deeper dive.</p>
                 </div>
               </div>
             </div>

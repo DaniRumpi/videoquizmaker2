@@ -11,7 +11,7 @@
   Popcorn.plugin( "twitter", {
     manifest: {
       about: {
-        name: "Popcorn Maker Twitter Plugin",
+        name: "Videoquiz Maker Twitter Plugin",
         version: "0.1",
         author: "Matthew Schranz, @mjschranz",
         website: "mschranz.wordpress.com, http://github.com/mjschranz"
