@@ -36,7 +36,7 @@ define( [ "text!dialog/dialogs/dinamic.html", "dialog/dialog", "util/scrollbars"
         // Hidden elements
         $hiddenFields      = $rootElement.find("#append-hidden-elements"),
         // Quizzes
-        GlobalQuiz         = this.Butter.QuizOptions;
+        GlobalQuiz         = _trackEvent.popcornOptions.quizJSON;
 
         var addScrollbar = function( scrollbarContainer ) {
             var scrollbarInner = scrollbarContainer.querySelector( ".scrollbar-inner" );
@@ -263,7 +263,7 @@ define( [ "text!dialog/dialogs/dinamic.html", "dialog/dialog", "util/scrollbars"
 
         var reloadPopup = function() {
             if (_options) {
-                var offsetGlobalY = 62 + 17; // ?? offset of the body
+                var offsetGlobalY = 10; // manual offset
                 var offsetGlobalX = 20;
                 var offsetHeight  = 30;    // Arrow height
                 var height = $rootElement.height() + offsetHeight;

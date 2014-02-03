@@ -428,10 +428,10 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 					var position = {};
 					if (ev.offsetX) {
 						position.left = ev.offsetX;
-						position.top  = ev.screenY;
+						position.top  = ev.pageY;
 					} else { // Firefox
 						position.left = ev.pageX - stage.$content.offset().left;
-						position.top  = ev.screenY;
+						position.top  = ev.pageY;
 					}
 					dialog = Dialog.spawn( "dinamic", {
 						data: {
@@ -478,10 +478,10 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 					var position = {};
 					if (ev.offsetX) {
 						position.left = ev.offsetX;
-						position.top  = ev.screenY;
+						position.top  = ev.pageY;
 					} else { // Firefox
 						position.left = ev.pageX - stage.$content.offset().left;
-						position.top  = ev.screenY;
+						position.top  = ev.pageY;
 					}
 					dialog = Dialog.spawn( "dinamic", {
 						data: {
