@@ -17,3 +17,5 @@
 /node_modules/
 /user_published/
 .directory
+public/Thumbs.db
+public/resources/Thumbs.db
