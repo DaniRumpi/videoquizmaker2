@@ -115,7 +115,7 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 				if (tracks.length > 0) {
 					layer.draw();
 				}
-				firstRun = false;
+				if (firstRun) firstRun = false;
 				return;
 			}
 
@@ -254,6 +254,7 @@ define( [ "dialog/dialog" ], function( Dialog ) {
 				}
 				layer.draw();
 			}
+			if (firstRun) firstRun = false;
 		}
 
 		// calculate and redraw all lines of the layer

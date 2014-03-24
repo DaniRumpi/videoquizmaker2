@@ -180,13 +180,16 @@ define( [ "core/eventmanager", "core/media", "util/sanitizer" ],
           return _automaticLines;
         },
         set: function(val) {
+          var old_val = _automaticLines;
           _automaticLines = val;
-          invalidate();
           if (val === "true") {
             butter.trackNetwork.calculateLines();
           }
           else {
             butter.trackNetwork.removeAutomaticLines();
+          }
+          if (old_val !== undefined) {
+            invalidate();
           }
         },
         enumerable: true
