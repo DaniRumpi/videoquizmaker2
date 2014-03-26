@@ -323,7 +323,7 @@
         }
 
         var time = _this.currentTime() - options.start + ( +options.from );
-        if (!_this.paused() && time + 0.5 > options.duration) {
+        if (!_this.paused() && time + 1 > options.duration) {
           options._endEvent();
         }
 
