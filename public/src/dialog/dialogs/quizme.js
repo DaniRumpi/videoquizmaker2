@@ -541,7 +541,7 @@ define([ "text!dialog/dialogs/quizme.html", "dialog/dialog", "util/scrollbars", 
     });
     // Input to enter the new name of the Quiz
     $quizzesContainer.on("keypress", "input", function(ev) {
-        var code = event.keyCode ? event.keyCode : event.which;
+        var code = ev.keyCode ? ev.keyCode : ev.which;
         if (code !== 13) return true;
         var $that = $(this).hide();
         // Change Name of Quiz

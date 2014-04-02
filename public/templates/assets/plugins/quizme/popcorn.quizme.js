@@ -101,12 +101,19 @@
 
   // Just work for quizzes which are one type
   var spliceQuestions = function(options) {
-    var typeQuiz = Object.keys(options.quizJSON[options.name])[0];
-    var questions = options.quizJSON[options.name][typeQuiz];
+    var questionsArray = [];
+    var quizName = Object.keys(options.quizJSON)[0];
+    var quiz = options.quizJSON[quizName];
+    Object.keys(quiz).forEach(function(tQuiz) {
+      var typeQuiz = tQuiz;
+      var questions = quiz[typeQuiz].slice(0);
+      Object.keys(questions).forEach(function(i) {
+        questionsArray[questionsArray.length] = {};
+        questionsArray[questionsArray.length-1][typeQuiz] = [questions[Number(i)]];
+      });
+    });
     var index = Number(options.indexQuestion);
-    var quizAUX = {};
-    quizAUX[typeQuiz] = questions.slice(index-1, index);
-    return quizAUX;
+    return questionsArray.slice(index-1, index)[0];
   }
 
   var createQuiz = function(options) {
@@ -184,7 +191,7 @@
         updateManifestName(manifest, options.name);
       }
       // Default quiz
-      if (options.name === deafultQuizName ) {
+      else if (options.name === deafultQuizName ) {
         options.quizJSON = {};
         options.quizJSON[deafultQuizName] = Tutorial;
         createQuiz(options);
@@ -367,7 +374,7 @@
           elem: "input",
           type: "number",
           label: "Height",
-          "default": 80,
+          "default": 90,
           "units": "%",
           hidden: true
         },

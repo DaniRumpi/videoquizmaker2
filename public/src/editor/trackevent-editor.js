@@ -65,7 +65,8 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
     // Wedge a check for scrollbars into the open event if it exists
     var _oldOpenEvent = events.open,
         _trackEventUpdateErrorCallback = NULL_FUNCTION,
-        _trackEvent;
+        _trackEvent,
+        $rootElement = $(rootElement);
 
     events.open = function( parentElement, trackEvent ) {
       var basicButton = rootElement.querySelector( ".basic-tab" ),
@@ -92,7 +93,14 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
             basicButton.classList.add( "butter-active" );
             advancedButton.classList.remove( "butter-active" );
             styleButton.classList.remove( "butter-active" );
-            extendObject.scrollbar.update();
+            
+            wrapper = rootElement.querySelector( ".editor-options.scrollbar-outer" );
+            $rootElement.find(".butter-scroll-bar").remove();
+            extendObject.addScrollbar({
+              inner: wrapper,
+              outer: wrapper,
+              appendTo: rootElement.querySelector( ".scrollbar-container" )
+            });
           }
         });
 
@@ -104,7 +112,14 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
             basicButton.classList.remove( "butter-active" );
             advancedButton.classList.add( "butter-active" );
             styleButton.classList.remove( "butter-active" );
-            extendObject.scrollbar.update();
+
+            wrapper = rootElement.querySelector( ".advanced-options.scrollbar-outer" );
+            $rootElement.find(".butter-scroll-bar").remove();
+            extendObject.addScrollbar({
+              inner: wrapper,
+              outer: wrapper,
+              appendTo: rootElement.querySelector( ".scrollbar-container" )
+            });
           }
         });
 
@@ -116,7 +131,14 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
             basicButton.classList.remove( "butter-active" );
             advancedButton.classList.remove( "butter-active" );
             styleButton.classList.add( "butter-active" );
-            extendObject.scrollbar.update();
+
+            wrapper = rootElement.querySelector( ".style-options.scrollbar-outer" );
+            $rootElement.find(".butter-scroll-bar").remove();
+            extendObject.addScrollbar({
+              inner: wrapper,
+              outer: wrapper,
+              appendTo: rootElement.querySelector( ".scrollbar-container" )
+            });
           }
         });
 
@@ -136,7 +158,13 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
             advancedTab.classList.toggle( "display-off" );
             basicButton.classList.add( "butter-active" );
             advancedButton.classList.remove( "butter-active" );
-            extendObject.scrollbar.update();
+            wrapper = rootElement.querySelector( ".editor-options.scrollbar-outer" );
+            $rootElement.find(".butter-scroll-bar").remove();
+            extendObject.addScrollbar({
+              inner: wrapper,
+              outer: wrapper,
+              appendTo: rootElement.querySelector( ".scrollbar-container" )
+            });
           }
         });
 
@@ -146,7 +174,13 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
             advancedTab.classList.toggle( "display-off" );
             basicButton.classList.remove( "butter-active" );
             advancedButton.classList.add( "butter-active" );
-            extendObject.scrollbar.update();
+            wrapper = rootElement.querySelector( ".advanced-options.scrollbar-outer" );
+            $rootElement.find(".butter-scroll-bar").remove();
+            extendObject.addScrollbar({
+              inner: wrapper,
+              outer: wrapper,
+              appendTo: rootElement.querySelector( ".scrollbar-container" )
+            });
           }
         });
 
@@ -198,7 +232,6 @@ define([ "util/lang", "util/keys", "util/time", "./base-editor", "ui/widget/tool
     };
 
     extendObject.createBreadcrumbs = function( trackEvent ) {
-console.log("default", extendObject.defaultLayouts);
       var oldTitleEl = rootElement.querySelector( "h1" ),
           breadcrumbsLayout = extendObject.defaultLayouts.querySelector( ".butter-breadcrumbs" );
       if (!breadcrumbsLayout) return;
