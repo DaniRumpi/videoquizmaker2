@@ -31,7 +31,7 @@
       "ans": "So clear!"
     }
   ]};
-  var deafultQuizName = "Tutorial";
+  var defaultQuizName = "Tutorial";
 
   var optDefault = {
       title: "Simple statements",
@@ -60,7 +60,6 @@
       options.name,
       "' has no questions</div>"
     ].join("");
-    options.$container.append(error);
   }
 
   var updateManifestName = function(manifest, option) {
@@ -101,7 +100,6 @@
     }
   }
 
-  // Just work for quizzes which are one type
   var spliceQuestions = function(options) {
     var questionsArray = [];
     var quizName = Object.keys(options.quizJSON)[0];
@@ -131,7 +129,9 @@
       if ($.isEmptyObject( STATS[options.name]) ) {
         STATS[options.name] = {};
       }
-      options.$container.jQuizMe(quizClone, options.optQuiz, options.callback, STATS);
+      try{
+        options.$container.jQuizMe(quizClone, options.optQuiz, options.callback, STATS);
+      }catch(ex){}
       // Change Quiz Appearence
       changeQuizCSS(options.$container.find(".quiz-el"), options);
     }
@@ -158,10 +158,10 @@
 
           if (data.json && data.json.error === "unauthorized") {
             errorNotifier(options, "unauthorized");
-            updateManifestName(manifest, deafultQuizName);
-            if (options.name === deafultQuizName ) { // Default quiz
+            updateManifestName(manifest, defaultQuizName);
+            if (options.name === defaultQuizName ) { // Default quiz
               options.quizJSON = {};
-              options.quizJSON[deafultQuizName] = Tutorial;
+              options.quizJSON[defaultQuizName] = Tutorial;
               createQuiz(options);
             }
             gettingQuizzes = false;
@@ -182,7 +182,7 @@
           }
           else {
             errorNotifier(options);
-            updateManifestName(manifest, deafultQuizName);
+            updateManifestName(manifest, defaultQuizName);
           }
           gettingQuizzes = false;
         });
@@ -196,9 +196,9 @@
         updateManifestName(manifest, options.name);
       }
       // Default quiz
-      else if (options.name === deafultQuizName ) {
+      else if (options.name === defaultQuizName ) {
         options.quizJSON = {};
-        options.quizJSON[deafultQuizName] = Tutorial;
+        options.quizJSON[defaultQuizName] = Tutorial;
         createQuiz(options);
         // update manifest
         updateManifestName(manifest, options.name);
@@ -491,7 +491,7 @@
       options.$container = $(options._container);
 
       if (!options.name) {
-        options.name = deafultQuizName;
+        options.name = defaultQuizName;
       }
       getQuiz(this, options, manifest);
     },
