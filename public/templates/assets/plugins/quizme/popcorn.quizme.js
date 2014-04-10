@@ -117,6 +117,7 @@
   }
 
   var createQuiz = function(options) {
+console.log("options.quizJSON[options.name]", options.quizJSON[options.name]);
     if (!!options.quizJSON) {
       options.$container.find(".error-quiz, .quiz-el").remove();
 
@@ -192,6 +193,8 @@
     else {
 
       if (!!options.quizJSON && !!options.quizJSON[options.name]) {
+console.log("kdjsn");
+try{console.log(JSON.parse(JSON.stringify(options.quizJSON), 2));}catch(ex){}
         createQuiz(options);
         updateManifestName(manifest, options.name);
       }

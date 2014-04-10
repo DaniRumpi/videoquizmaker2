@@ -776,7 +776,8 @@
 			},
 			// checkAns(): Changes the user's answer during the quiz and updates the stats.
 			checkAns = function( isFlashCard ){
-				var ans = getAns(), isAnsCorr = false, userAns = getProblemProp( "userAnswer" );
+				var ans = $.parseHTML(getAns())[0].wholeText || getAns(),
+					isAnsCorr = false, userAns = getProblemProp( "userAnswer" );
 				
 				if( userAns === undefined ){ return false; }
 				if( typeof(ans) === "string"){
@@ -1096,6 +1097,9 @@
 								ansSelChoice = getStrWithSeeableHTML( val[ range[ len ] ], toUni );
 								if( cASI ){
 									cASI[ len ] = getStrWithSeeableHTML( cASI[ len ], toUni );
+								} 
+								if (!options.showHTML) {
+									ansSelChoice = $.parseHTML(ansSelChoice)[0].wholeText || ansSelChoice;
 								}
 								x = (olVer) ? ["<li class = 'q-ol-li'><input type='radio' class='q-radioBtn'/><span class='q-ol-li-ansSel'>", ansSelChoice, "</span></li> "].join("") : ["<option>", ansSelChoice, "</option> "].join("");
 								optHtml = x + optHtml;
