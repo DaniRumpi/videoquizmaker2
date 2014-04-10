@@ -6,6 +6,8 @@
     return fallback;
   }
 
+  var STATS = STATS || {};
+
   var Tutorial = { "multiList": [
     {
       "ques": "Can you get this question wrong?",
@@ -126,7 +128,10 @@
       } else {
         quizClone = $.extend({}, options.quizJSON[options.name]);
       }
-      options.$container.jQuizMe(quizClone, options.optQuiz, options.callback);
+      if ($.isEmptyObject( STATS[options.name]) ) {
+        STATS[options.name] = {};
+      }
+      options.$container.jQuizMe(quizClone, options.optQuiz, options.callback, STATS);
       // Change Quiz Appearence
       changeQuizCSS(options.$container.find(".quiz-el"), options);
     }
@@ -350,6 +355,22 @@
           optional: true,
           group: "advanced"
         },
+        nonblock: {
+          elem: "input",
+          type: "checkbox",
+          label: "Don't Pause",
+          "default": false,
+          optional: true,
+          group: "advanced"
+        },
+        allStats: {
+          elem: "input",
+          type: "checkbox",
+          label: "Show All Statistics",
+          "default": false,
+          optional: true,
+          group: "advanced"
+        },
         start: {
           elem: "input",
           type: "text",
@@ -399,13 +420,7 @@
           options: [ "None", "Pop", "Slide Up", "Slide Down", "Fade" ],
           values: [ "popcorn-none", "popcorn-pop", "popcorn-slide-up", "popcorn-slide-down", "popcorn-fade" ],
           label: "Transition",
-          "default": "popcorn-fade"
-        },
-        block: {
-          elem: "select",
-          options: ["No", "Yes"],
-          label: "Block",
-          "default": "No",
+          "default": "popcorn-fade",
           hidden: true
         },
         zindex: {
@@ -462,6 +477,8 @@
       options.optQuiz.numOfQuizQues = options.numOfQuizQues>0? options.numOfQuizQues:undefined;
       options.optQuiz.hideDetails = options.hideDetails;
       options.optQuiz.showHTML = options.showHTML;
+      options.optQuiz.allStats = options.allStats;
+      options.optQuiz.name = options.name;
 
       // Object Callback with functions that jquizme execute when finish
       options.callback = {
@@ -489,7 +506,9 @@
         options._container.classList.remove( "off" );
         options._container.style.display = "";
       }
-      this.pause();
+      if (options.nonblock !== true) {
+        this.pause();
+      }
     },
 
     end: function( event, options ) {
