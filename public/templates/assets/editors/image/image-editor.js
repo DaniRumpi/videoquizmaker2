@@ -57,7 +57,8 @@
       });
 
       butter.listen( "droppable-succeeded", function uploadSuceeded( e ) {
-        _dropArea.querySelector( "img" ).src = e.data;
+        try{ _dropArea.querySelector( "img" ).src = e.data; }
+        catch (ex) {}
       });
     }
 
