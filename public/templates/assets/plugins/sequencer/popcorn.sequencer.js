@@ -311,7 +311,14 @@
       };
 
       options._onTimeUpdate = function() {
+        
+        var time = _this.currentTime() - options.start + ( +options.from );
 
+        if (time + 1 >= options.duration) {
+          _this.continueFlow(options);
+          return;
+        }
+        
         if ( options._clip.ended() ) {
           if (options._clip.paused() && !_this.paused()) {
             options._endEvent();
@@ -322,10 +329,11 @@
           _this.paused() && _this.currentTime(+_this.currentTime());
         }
 
-        var time = _this.currentTime() - options.start + ( +options.from );
-        if (!_this.paused() && time + 1 > options.duration) {
+        if (!_this.paused() && time + 0.4 > options.duration) {
+          _this.currentTime(-_this.currentTime());
           options._endEvent();
         }
+        
 
         // If we hit here, we failed to find a valid range,
         // so we should probably stop everything. We'll get out of sync.
@@ -336,8 +344,9 @@
           options.displayLoading();
           setTimeout(function() {
             _this.paused() && _this.currentTime(+_this.currentTime());
-          }, 1000);
+          }, 100);
         }
+
       };
 
       // Ensures seek time is seekable, and not already seeked.
