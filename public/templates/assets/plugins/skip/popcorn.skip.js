@@ -20,7 +20,8 @@
       },
       start: function() {
       },
-      end: function() {
+      end: function( event, options ) {
+        this.jumpNext(options); 
       },
       _teardown: function( options ) {
         this.off( "timeupdate", options.skipRange );

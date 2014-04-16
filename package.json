@@ -92,7 +92,7 @@
     "express": "3.1.0",
     "jade": "0.28.2",
     "jshint": "1.1.0",
-    "knox": "0.7.0",
+    "knox": "0.8.9",
     "less-middleware": "0.1.9",
     "less": "1.3.3",
     "nconf": "0.6.7",
@@ -101,7 +101,8 @@
     "requirejs-middleware": "0.0.5",
     "sequelize": "1.6.0",
     "shelljs": "0.1.2",
-    "webmaker-mediasync": "https://github.com/mozilla/webmaker-mediasync/tarball/v0.1.28"
+    "webmaker-mediasync": "https://github.com/mozilla/webmaker-mediasync/tarball/v0.1.28",
+    "pg": "3.0.1"
   },
   "optionalDependencies": {
     "node-statsd": "git://github.com/sivy/node-statsd.git#d6997fff",

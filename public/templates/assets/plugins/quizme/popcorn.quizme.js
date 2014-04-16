@@ -6,6 +6,8 @@
     return fallback;
   }
 
+  var STATS = STATS || {};
+
   var Tutorial = { "multiList": [
     {
       "ques": "Can you get this question wrong?",
@@ -29,7 +31,7 @@
       "ans": "So clear!"
     }
   ]};
-  var deafultQuizName = "Tutorial";
+  var defaultQuizName = "Tutorial";
 
   var optDefault = {
       title: "Simple statements",
@@ -58,7 +60,6 @@
       options.name,
       "' has no questions</div>"
     ].join("");
-    options.$container.append(error);
   }
 
   var updateManifestName = function(manifest, option) {
@@ -99,14 +100,20 @@
     }
   }
 
-  // Just work for quizzes which are one type
   var spliceQuestions = function(options) {
-    var typeQuiz = Object.keys(options.quizJSON[options.name])[0];
-    var questions = options.quizJSON[options.name][typeQuiz];
+    var questionsArray = [];
+    var quizName = Object.keys(options.quizJSON)[0];
+    var quiz = options.quizJSON[quizName];
+    Object.keys(quiz).forEach(function(tQuiz) {
+      var typeQuiz = tQuiz;
+      var questions = quiz[typeQuiz].slice(0);
+      Object.keys(questions).forEach(function(i) {
+        questionsArray[questionsArray.length] = {};
+        questionsArray[questionsArray.length-1][typeQuiz] = [questions[Number(i)]];
+      });
+    });
     var index = Number(options.indexQuestion);
-    var quizAUX = {};
-    quizAUX[typeQuiz] = questions.slice(index-1, index);
-    return quizAUX;
+    return questionsArray.slice(index-1, index)[0];
   }
 
   var createQuiz = function(options) {
@@ -119,7 +126,12 @@
       } else {
         quizClone = $.extend({}, options.quizJSON[options.name]);
       }
-      options.$container.jQuizMe(quizClone, options.optQuiz, options.callback);
+      if ($.isEmptyObject( STATS[options.name]) ) {
+        STATS[options.name] = {};
+      }
+      try{
+        options.$container.jQuizMe(quizClone, options.optQuiz, options.callback, STATS);
+      }catch(ex){}
       // Change Quiz Appearence
       changeQuizCSS(options.$container.find(".quiz-el"), options);
     }
@@ -146,10 +158,10 @@
 
           if (data.json && data.json.error === "unauthorized") {
             errorNotifier(options, "unauthorized");
-            updateManifestName(manifest, deafultQuizName);
-            if (options.name === deafultQuizName ) { // Default quiz
+            updateManifestName(manifest, defaultQuizName);
+            if (options.name === defaultQuizName ) { // Default quiz
               options.quizJSON = {};
-              options.quizJSON[deafultQuizName] = Tutorial;
+              options.quizJSON[defaultQuizName] = Tutorial;
               createQuiz(options);
             }
             gettingQuizzes = false;
@@ -170,7 +182,7 @@
           }
           else {
             errorNotifier(options);
-            updateManifestName(manifest, deafultQuizName);
+            updateManifestName(manifest, defaultQuizName);
           }
           gettingQuizzes = false;
         });
@@ -184,9 +196,9 @@
         updateManifestName(manifest, options.name);
       }
       // Default quiz
-      if (options.name === deafultQuizName ) {
+      else if (options.name === defaultQuizName ) {
         options.quizJSON = {};
-        options.quizJSON[deafultQuizName] = Tutorial;
+        options.quizJSON[defaultQuizName] = Tutorial;
         createQuiz(options);
         // update manifest
         updateManifestName(manifest, options.name);
@@ -343,6 +355,22 @@
           optional: true,
           group: "advanced"
         },
+        nonblock: {
+          elem: "input",
+          type: "checkbox",
+          label: "Don't Pause",
+          "default": false,
+          optional: true,
+          group: "advanced"
+        },
+        allStats: {
+          elem: "input",
+          type: "checkbox",
+          label: "Show All Statistics",
+          "default": false,
+          optional: true,
+          group: "advanced"
+        },
         start: {
           elem: "input",
           type: "text",
@@ -367,7 +395,7 @@
           elem: "input",
           type: "number",
           label: "Height",
-          "default": 80,
+          "default": 90,
           "units": "%",
           hidden: true
         },
@@ -392,13 +420,7 @@
           options: [ "None", "Pop", "Slide Up", "Slide Down", "Fade" ],
           values: [ "popcorn-none", "popcorn-pop", "popcorn-slide-up", "popcorn-slide-down", "popcorn-fade" ],
           label: "Transition",
-          "default": "popcorn-fade"
-        },
-        block: {
-          elem: "select",
-          options: ["No", "Yes"],
-          label: "Block",
-          "default": "No",
+          "default": "popcorn-fade",
           hidden: true
         },
         zindex: {
@@ -455,6 +477,8 @@
       options.optQuiz.numOfQuizQues = options.numOfQuizQues>0? options.numOfQuizQues:undefined;
       options.optQuiz.hideDetails = options.hideDetails;
       options.optQuiz.showHTML = options.showHTML;
+      options.optQuiz.allStats = options.allStats;
+      options.optQuiz.name = options.name;
 
       // Object Callback with functions that jquizme execute when finish
       options.callback = {
@@ -467,7 +491,7 @@
       options.$container = $(options._container);
 
       if (!options.name) {
-        options.name = deafultQuizName;
+        options.name = defaultQuizName;
       }
       getQuiz(this, options, manifest);
     },
@@ -482,7 +506,9 @@
         options._container.classList.remove( "off" );
         options._container.style.display = "";
       }
-      this.pause();
+      if (options.nonblock !== true) {
+        this.pause();
+      }
     },
 
     end: function( event, options ) {

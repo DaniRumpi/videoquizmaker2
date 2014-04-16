@@ -178,7 +178,8 @@
 				wrong: "Wrong",
 				total: "Total",
 				tried: "Tried",
-				timer: "Time"
+				timer: "Time",
+				globalScore: "Global Score"
 			},
 			quiz:{
 				tfEqual: " = ",
@@ -232,10 +233,11 @@
 		statusUpdate: false, // Sends a status Update. Refer to function sendStatus.
 		quizType: "fillInTheBlank", // This is only need if you send in an array and not a object with a defined quiz type.
 		title: 'Quiz', // title displayed for quiz.
-		hideDetails: false
+		hideDetails: false,
+		allStats: false
 	};
 		
-	$.fn.jQuizMe = function( wordList, options, callback, userLang ){
+	$.fn.jQuizMe = function( wordList, options, callback, STATS, userLang ){
 	
 		var settings = $.extend({},_settings, options),
 			lang = $.extend(true, {},_lang, userLang),
@@ -553,17 +555,57 @@
 					$( ".q-options", currQuiz ).hide();
 				}
 			},
-			getUserStatDetailsForDisplay = function(){
-				var stopTimerStr = stopTimer();
-				return [
-						(lang.stats.right + ": " + stats.numOfRight), 
-						(lang.stats.wrong + ": " + stats.numOfWrong),
-						(lang.stats.tried + ": " + stats.quesTried), 
-						/*(lang.stats.rate + ": " + stats.accurTxt()),*/
-						(lang.stats.timer + ": " + stopTimerStr), 
-						(lang.stats.total + ": " + stats.percTxt())
-					].join('<br/>');
-			},
+            updateStats = function() {
+                if (!STATS && !STATS[options.name]) return;
+                if (STATS[options.name].right !== undefined) {
+                    STATS[options.name].right += stats.numOfRight;
+                } else {
+                    STATS[options.name].right = stats.numOfRight;
+                }
+                if (STATS[options.name].wrong !== undefined) {
+                  STATS[options.name].wrong += stats.numOfWrong;
+                } else {
+                    STATS[options.name].wrong = stats.numOfWrong;
+                }
+                if (STATS[options.name].time !== undefined) {
+                    STATS[options.name].time += stats.timer.totalElapsed/1000;
+                } else {
+                  STATS[options.name].time = stats.timer.totalElapsed/1000;
+                }
+                if (STATS[options.name].total !== undefined) {
+                    STATS[options.name].total += stats.totalQues;
+                } else {
+                    STATS[options.name].total = stats.totalQues;
+                } 
+            },
+            getPercStats = function() {
+                var x = Math.round( STATS[options.name].right / STATS[options.name].total * 100 );
+                return ( STATS[options.name].total ) ? x : 0; 
+            },
+            getPercStatsText = function() {
+                return " = " + getPercStats() + "%";
+            },
+            getUserStatDetailsForDisplay = function(){
+                var stopTimerStr = stopTimer();
+                updateStats();
+              if (options.allStats === true) {
+                    return [
+                        (lang.stats.right + ": " + STATS[options.name].right), 
+                        (lang.stats.wrong + ": " + STATS[options.name].wrong),
+                        /*(lang.stats.rate + ": " + stats.accurTxt()),*/
+                        (lang.stats.timer + ": " + stats.timer.formatSeconds(STATS[options.name].time)), 
+                        (lang.stats.total + ": " + getPercStatsText())
+                    ].join('<br/>');
+                }
+                return [
+                        (lang.stats.right + ": " + stats.numOfRight), 
+                        (lang.stats.wrong + ": " + stats.numOfWrong),
+                        (lang.stats.tried + ": " + stats.quesTried), 
+                        (lang.stats.rate + ": " + stats.accurTxt()),
+                        (lang.stats.timer + ": " + stopTimerStr), 
+                        (lang.stats.total + ": " + stats.percTxt())
+                    ].join('<br/>');
+            },
 			setupReview = function(){
 				updateReviewIndex();
 				$( ".q-review-btn", currQuiz ).one( "click", function(){
@@ -581,8 +623,13 @@
 			// then enables the review-bar.
 			gameOver = function(){ 
 				disableGameOverButtons();
-				$( ".q-statTotal", currQuiz).html( lang.stats.score + ": " + stats.perc() + "%" );
 				$( ".q-statDetails", currQuiz).html( getUserStatDetailsForDisplay() );
+				$( ".q-statTotal", currQuiz).html( lang.stats.score + ": " + stats.perc() + "%" );
+				if (options.allStats) {
+					$( ".q-statTotal", currQuiz).html( lang.stats.globalScore + ": " + getPercStatsText() );
+				} else {
+					$( ".q-statTotal", currQuiz).html( lang.stats.score + ": " + stats.perc() + "%" );
+				}
 				$( ".q-restart-btn", currQuiz).one( "click", reStartQuiz );			
 				$( ".q-del-btn", currQuiz).one( "click", function(){
 					var quizInfo = {
@@ -729,7 +776,8 @@
 			},
 			// checkAns(): Changes the user's answer during the quiz and updates the stats.
 			checkAns = function( isFlashCard ){
-				var ans = getAns(), isAnsCorr = false, userAns = getProblemProp( "userAnswer" );
+				var ans = $.parseHTML(getAns())[0].wholeText || getAns(),
+					isAnsCorr = false, userAns = getProblemProp( "userAnswer" );
 				
 				if( userAns === undefined ){ return false; }
 				if( typeof(ans) === "string"){
@@ -1049,6 +1097,9 @@
 								ansSelChoice = getStrWithSeeableHTML( val[ range[ len ] ], toUni );
 								if( cASI ){
 									cASI[ len ] = getStrWithSeeableHTML( cASI[ len ], toUni );
+								} 
+								if (!options.showHTML) {
+									ansSelChoice = $.parseHTML(ansSelChoice)[0].wholeText || ansSelChoice;
 								}
 								x = (olVer) ? ["<li class = 'q-ol-li'><input type='radio' class='q-radioBtn'/><span class='q-ol-li-ansSel'>", ansSelChoice, "</span></li> "].join("") : ["<option>", ansSelChoice, "</option> "].join("");
 								optHtml = x + optHtml;

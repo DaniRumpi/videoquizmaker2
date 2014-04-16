@@ -223,12 +223,14 @@ define( [ "core/eventmanager", "util/scrollbars", "ui/widget/tooltip", "ui/widge
         _errorMessageContainer.parentNode.style.height = _errorMessageContainer.offsetHeight + "px";
         _errorMessageContainer.parentNode.style.visibility = "visible";
         _errorMessageContainer.parentNode.classList.add( "open" );
+        rootElement.querySelector( ".butter-editor-body" ).classList.add( "error-height" );
       }
       else {
         _errorMessageContainer.innerHTML = "";
         _errorMessageContainer.parentNode.style.height = "";
         _errorMessageContainer.parentNode.style.visibility = "";
         _errorMessageContainer.parentNode.classList.remove( "open" );
+        rootElement.querySelector( ".butter-editor-body" ).classList.remove( "error-height" );
       }
     };
 

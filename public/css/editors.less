@@ -208,6 +208,8 @@
     padding: 10px 20px;
     padding-right: 15px; //scrollbars
     background: #F0DDDD;
+    position: absolute;
+    top: -20px;
   }
 
   // Spacing
@@ -246,6 +248,9 @@
 
   .butter-editor-body.butter-tabs-spacing {
     top: @_editorTitle + @_editorTabs;
+  }
+  .butter-editor-body.error-height {
+    top: @_editorTitle + @_editorTabs + 20px;
   }
 
   // Scrollbars

@@ -38,6 +38,24 @@ define( [ "text!dialog/dialogs/dinamic.html", "dialog/dialog", "util/scrollbars"
         // Quizzes
         GlobalQuiz         = _trackEvent.popcornOptions.quizJSON;
 
+        var spliceQuestions = function(options) {
+            if (!options.indexQuestion || options.indexQuestion <= 0) {
+                return GlobalQuiz[options.name];
+            }
+            var questionsArray = [];
+            var quiz = GlobalQuiz[options.name];
+            Object.keys(quiz).forEach(function(tQuiz) {
+                var typeQuiz = tQuiz;
+                var questions = quiz[typeQuiz].slice(0);
+                Object.keys(questions).forEach(function(i) {
+                    questionsArray[questionsArray.length] = {};
+                    questionsArray[questionsArray.length-1][typeQuiz] = [questions[Number(i)]];
+                });
+            });
+            var index = Number(options.indexQuestion);
+            return questionsArray.slice(index-1, index)[0];
+        }
+
         var addScrollbar = function( scrollbarContainer ) {
             var scrollbarInner = scrollbarContainer.querySelector( ".scrollbar-inner" );
             var scrollbarOuter = scrollbarContainer.querySelector( ".scrollbar-outer" );
@@ -134,7 +152,9 @@ define( [ "text!dialog/dialogs/dinamic.html", "dialog/dialog", "util/scrollbars"
             // get quizname from trackEvent
             var quizname = _trackEvent.popcornOptions.name;
             var name = quizname;
-            var data = GlobalQuiz[name];
+            //var data = GlobalQuiz[name];
+            var data = spliceQuestions(_trackEvent.popcornOptions);
+            console.log(spliceQuestions(_trackEvent.popcornOptions));
             // Load again quiz
             if (quizname !== questions.name) {
                 $questions.html(""); // empty
@@ -305,8 +325,11 @@ define( [ "text!dialog/dialogs/dinamic.html", "dialog/dialog", "util/scrollbars"
                     if (!$that.hasClass("selected")) {
                         $questions.find(".selected").removeClass("selected").find(".assured-pass-wrapper").slideUp();
                         $that.addClass("selected");
-                        $that.find(".assured-pass-wrapper").slideDown(function() {
-                            dialog.scrollbar.update(_data.endID, true);
+                        $that.find(".assured-pass-wrapper").slideDown(100, function() {
+                            dialog.scrollbar.update();
+                            setTimeout(function() {
+                                dialog.scrollbar.update();
+                            }, 200);
                         });
 
                         var name = _options.questions.name;
@@ -410,7 +433,7 @@ define( [ "text!dialog/dialogs/dinamic.html", "dialog/dialog", "util/scrollbars"
             addScrollbar($popupQuestions[0]);
             togglePopupTab();
             // Reload position of the popup
-            $rootElement.show("fast", reloadPopup);
+            $rootElement.show(100, reloadPopup);
         });
 
     });
