@@ -8,6 +8,8 @@ Global styles and classes
     color: #555;
     -webkit-font-smoothing: antialiased;
     overflow: auto;
+    background: #f9f9f9 url(/media/img/bg-stone.png) 0 0 repeat-x;
+    height: 100%;
   }
 
   a {
@@ -79,11 +81,11 @@ Global styles and classes
   }
   .hero-unit h1 {
     margin-left: -12px;
-    margin-top: 40px;
     width: 500px;
     height: 140px;
     background: url( "../../logo-big.png" ) no-repeat;
     margin-bottom: 30px;
+    cursor: pointer;
   }
   .hero-unit h2 {
     font-size: 42px;
