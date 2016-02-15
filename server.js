@@ -1,5 +1,5 @@
 // Newrelic *must* be the first module loaded. Do not move this require module!
-require( 'newrelic' );
+// require( 'newrelic' );
 
 var express = require('express'),
     fs = require('fs'),
@@ -618,8 +618,8 @@ app.post('/api/deletequiz', filter.isStorageAvailable, function( req, res ) {
 });
 //app.get( '/healthcheck', routes.api.healthcheck );
 
-//app.listen( config.PORT, function() {
-app.listen( process.env.PORT, function() {
+app.listen( config.PORT, function() {
+// app.listen( process.env.PORT, function() {
   console.log( 'HTTP Server started on ' + APP_HOSTNAME );
   console.log( 'Press Ctrl+C to stop' );
 });
